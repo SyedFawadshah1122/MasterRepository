@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .card {
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+            border: none;
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            background: linear-gradient(90deg, #0d6efd, #0a58ca);
+            color: white;
+            padding: 15px 20px;
+        }
+
+        th.sortable:hover {
+            cursor: pointer;
+            background: #e9ecef;
+        }
+
+        /* SEARCH BOX ICON */
+        .search-wrapper {
+            position: relative;
+            width: 260px;
+        }
+
+            .search-wrapper input {
+                padding-left: 35px;
+            }
+
+            .search-wrapper .bi-search {
+                position: absolute;
+                top: 50%;
+                left: 10px;
+                font-size: 1.2rem;
+                transform: translateY(-50%);
+                color: gray;
+            }
+
+        /* INPUT HIGHLIGHT */
+        .form-control:focus {
+            box-shadow: 0 0 10px rgba(13,110,253,.3);
+            border-color: #0d6efd;
+        }
+
+        /* BUTTONS */
+        .btn {
+            border-radius: 8px;
+        }
+
+        /* TABLE HOVER */
+        table.table-hover tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+    </style>
+
+</head>
+
+<body class="">
+
+    <!-- CUSTOMER FORM -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5>
+                <i class="bi bi-people-fill me-2"></i>
+                Customer Master
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><i class="bi bi-hash me-1 text-primary"></i>Customer ID</label>
+                    <input type="text" id="CustomerId" class="form-control rounded-3 shadow-sm" />
+                </div>
+                <div class="col-md-8">
+                    <label><i class="bi bi-person-fill me-1 text-success"></i>Customer Name</label>
+                    <input type="text" id="CustomerName" class="form-control rounded-3 shadow-sm" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><i class="bi bi-telephone-fill me-1 text-warning"></i>Phone</label>
+                <input type="text" id="Phone" class="form-control rounded-3 shadow-sm" />
+            </div>
+
+            <div class="mb-3">
+                <label><i class="bi bi-geo-alt-fill me-1 text-danger"></i>Address</label>
+                <textarea id="Address" class="form-control rounded-3 shadow-sm" rows="2"></textarea>
+            </div>
+
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="IsActive">
+                <label class="form-check-label"><i class="bi bi-check2-square me-1"></i>Is Active</label>
+            </div>
+
+            <button class="btn btn-success me-2" id="btnSaveCustomer">
+                <i class="bi bi-save-fill me-1"></i>Save
+            </button>
+            <button class="btn btn-primary me-2" id="btnUpdateCustomer" style="display:none;">
+                <i class="bi bi-pencil-square me-1"></i>Update
+            </button>
+            <button class="btn btn-secondary" onclick="clearForm()">
+                <i class="bi bi-eraser-fill me-1"></i>Clear
+            </button>
+
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- DATATABLE STYLE TOP BAR -->
+    <div class="d-flex justify-content-between mb-3">
+
+        <!-- LEFT: SHOW ENTRIES -->
+        <div class="d-flex align-items-center">
+            Show &nbsp;
+            <select id="pageSize" class="form-select form-select-sm w-auto">
+                <option>5</option>
+                <option>10</option>
+                <option>20</option>
+                <option>50</option>
+            </select>
+            &nbsp; entries
+        </div>
+
+        <!-- RIGHT: SEARCH BAR WITH ICON -->
+        <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <input id="searchBox" class="form-control rounded-3 shadow-sm" placeholder="Search..." />
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <table id="dtCustomer" class="table table-bordered table-hover table-striped nowrap w-100">
+        <thead class="table-dark">
+            <tr>
+                <th class="sortable" data-col="CustomerId"><i class="bi bi-hash me-1"></i>ID</th>
+                <th class="sortable" data-col="CustomerName"><i class="bi bi-person-fill me-1"></i>Name</th>
+                <th class="sortable" data-col="Phone"><i class="bi bi-telephone-fill me-1"></i>Phone</th>
+                <th class="sortable" data-col="Address"><i class="bi bi-geo-alt-fill me-1"></i>Address</th>
+                <th><i class="bi bi-check-circle-fill me-1"></i>Active</th>
+                <th><i class="bi bi-gear-fill me-1"></i>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div id="paginationWrapper" class="d-flex justify-content-end mt-3"></div>
+
+    <!-- CRUD JS -->
+    <script>
+        $("#btnSaveCustomer").click(function () {
+            $.post("/Customer/SaveCustomer", {
+                CustomerId: $("#CustomerId").val(),
+                CustomerName: $("#CustomerName").val(),
+                Phone: $("#Phone").val(),
+                Address: $("#Address").val(),
+                IsActive: $("#IsActive").is(":checked")
+            }, function () {
+                Swal.fire({ icon: "success", title: "Customer Saved", timer: 1500 });
+                clearForm();
+                loadCustomers();
+            });
+        });
+
+        $("#btnUpdateCustomer").click(function () {
+            $.post("/Customer/UpdateCustomer", {
+                CustomerId: $("#CustomerId").val(),
+                CustomerName: $("#CustomerName").val(),
+                Phone: $("#Phone").val(),
+                Address: $("#Address").val(),
+                IsActive: $("#IsActive").is(":checked")
+            }, function () {
+                Swal.fire({ icon: "success", title: "Customer Updated", timer: 1500 });
+                clearForm();
+                loadCustomers();
+            });
+        });
+
+        function editCustomer(id) {
+            $.get("/Customer/GetCustomerById?id=" + id, function (d) {
+                $("#CustomerId").val(d.CustomerId).prop("readonly", true);
+                $("#CustomerName").val(d.CustomerName);
+                $("#Phone").val(d.Phone);
+                $("#Address").val(d.Address);
+                $("#IsActive").prop("checked", d.IsActive);
+
+                $("#btnSaveCustomer").hide();
+                $("#btnUpdateCustomer").show();
+            });
+        }
+
+        function deleteCustomer(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                icon: "warning",
+                showCancelButton: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    $.post("/Customer/DeleteCustomer", { id }, function () {
+                        Swal.fire({ icon: "success", title: "Customer Deleted", timer: 1500 });
+                        loadCustomers();
+                    });
+                }
+            });
+        }
+
+        function clearForm() {
+            $("#CustomerId").val("").prop("readonly", false);
+            $("#CustomerName").val("");
+            $("#Phone").val("");
+            $("#Address").val("");
+            $("#IsActive").prop("checked", false);
+            $("#btnSaveCustomer").show();
+            $("#btnUpdateCustomer").hide();
+        }
+
+        // MANUAL DATATABLE LOGIC
+        let pageNo = 1, pageSize = 5, search = "", sortCol = "CustomerId", sortOrder = "ASC";
+
+        function loadCustomers() {
+            $.get("/Customer/GetCustomersPaged", { pageNo, pageSize, search, sortCol, sortOrder }, function (result) {
+                renderTable(result.data);
+                renderPagination(result.totalRecords);
+            });
+        }
+
+        function renderTable(rows) {
+            let tbody = $("#dtCustomer tbody");
+            tbody.html("");
+            rows.forEach(r => {
+                tbody.append(`
+                    <tr>
+                        <td>${r.CustomerId}</td>
+                        <td>${r.CustomerName}</td>
+                        <td>${r.Phone}</td>
+                        <td>${r.Address}</td>
+                        <td>${r.IsActive ?
+                            '<i class="bi bi-check-circle-fill text-success fs-5"></i>' :
+                            '<i class="bi bi-x-circle-fill text-danger fs-5"></i>'}
+                        </td>
+                        <td>
+                            <button class="btn btn-warning btn-sm me-1" onclick="editCustomer('${r.CustomerId}')">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${r.CustomerId}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function renderPagination(total) {
+            let totalPages = Math.ceil(total / pageSize);
+            let html = `<ul class="pagination mb-0">`;
+            html += `<li class="page-item ${pageNo === 1 ? 'disabled' : ''}">
+                        <a class="page-link" onclick="gotoPage(${pageNo - 1})">Previous</a>
+                    </li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${pageNo === i ? 'active' : ''}">
+                            <a class="page-link" onclick="gotoPage(${i})">${i}</a>
+                        </li>`;
+            }
+            html += `<li class="page-item ${pageNo === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" onclick="gotoPage(${pageNo + 1})">Next</a>
+                    </li></ul>`;
+            $("#paginationWrapper").html(html);
+        }
+
+        function gotoPage(num) {
+            pageNo = num;
+            loadCustomers();
+        }
+
+        $("#searchBox").keyup(function () {
+            search = $(this).val();
+            pageNo = 1;
+            loadCustomers();
+        });
+
+        $("#pageSize").change(function () {
+            pageSize = $(this).val();
+            pageNo = 1;
+            loadCustomers();
+        });
+
+        loadCustomers();
+    </script>
+
+</body>
+</html>

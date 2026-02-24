@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SoftTech ERP</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==================== TOP NAVBAR ==================== */
+        .top-navbar {
+            width: 100%;
+            background: #31333fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 0.2rem;
+            color:#fff;
+            position: fixed;
+            top: 0;
+            z-index: 1200;
+
+             
+        }
+
+        .brand-dropdown {
+            position: relative;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+            .brand-dropdown i {
+                margin-left: 5px;
+            }
+
+            .brand-dropdown .brand-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #1b1f3b;
+                min-width: 220px;
+                border-radius: 5px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                padding: 10px 0;
+                z-index: 1300;
+            }
+
+            .brand-dropdown:hover .brand-menu {
+                display: block;
+            }
+
+            .brand-dropdown .brand-menu a,
+            .brand-dropdown .brand-menu span {
+                display: block;
+                color: #fff;
+                padding: 8px 15px;
+                text-decoration: none;
+            }
+
+                .brand-dropdown .brand-menu a i {
+                    margin-right: 8px;
+                }
+
+                .brand-dropdown .brand-menu a:hover {
+                    background: rgba(255,255,255,0.1);
+                }
+
+            .brand-dropdown .brand-menu hr {
+                margin: 5px 0;
+                border-color: rgba(255,255,255,0.2);
+            }
+
+        .search-bar input {
+            width: 200px;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            position: fixed;
+            top: 56px; /* below top navbar */
+            left: 0;
+            height: calc(100% - 56px);
+            width: 220px;
+            background-color: #1b1f3b;
+            overflow-x: hidden;
+            z-index: 1100;
+            padding-top: 10px;
+        }
+
+            .sidebar .nav-link {
+                display: flex;
+                align-items: center;
+                color: #fff;
+                padding: 12px 15px;
+                font-weight: 500;
+                cursor: pointer;
+            }
+
+                .sidebar .nav-link i {
+                    font-size: 1.3rem;
+                    margin-right: 10px;
+                }
+
+                .sidebar .nav-link:hover {
+                    background: rgba(255,255,255,0.1);
+                    border-radius: 8px;
+                }
+
+        /* ==================== CONTENT WRAPPER ==================== */
+        .content-wrapper {
+            margin-left: 220px;
+            padding: 80px 20px 20px 20px; /* top padding for navbar */
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            margin-left: 220px;
+            clear: both;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==================== TOP NAVBAR ==================== -->
+    <nav class="top-navbar">
+        <div class="brand-dropdown">
+            <h7>SoftTech ERP</h7>   <i class="bi bi-caret-down-fill"></i>
+            
+
+                
+                
+        </div>
+
+        <div class="search-bar">
+            <input type="search" class="form-control form-control-sm" placeholder="Search...">
+        </div>
+    </nav>
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <div class="sidebar">
+
+        <!-- NAVBAR INSIDE SIDEBAR -->
+     
+
+        <!-- ==================== SIDEBAR LINKS ==================== -->
+        <!-- Master Dropdown -->
+        <div class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#masterMenu" role="button" aria-expanded="false" aria-controls="masterMenu">
+                <i class="bi bi-gear-fill"></i> Master
+            </a>
+            <div class="collapse" id="masterMenu">
+                <a class="nav-link" asp-controller="Category" asp-action="Categories"><i class="bi bi-diagram-3-fill me-2"></i> Category</a>
+                <a class="nav-link" asp-controller="Category" asp-action="SubCategories"><i class="bi bi-diagram-3-fill me-3"></i> Sub Category</a>
+                <a class="nav-link" asp-controller="Product" asp-action="Products"><i class="bi bi-box-fill me-2"></i> Products</a>
+                <a class="nav-link" asp-controller="Supplier" asp-action="Suppliers"><i class="bi bi-truck me-2"></i> Supplier</a>
+                <a class="nav-link" asp-controller="Customer" asp-action="Customers"><i class="bi bi-people-fill me-2"></i> Customer</a>
+            </div>
+        </div>
+
+        <!-- Transaction Dropdown -->
+        <div class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#transactionMenu" role="button" aria-expanded="false" aria-controls="transactionMenu">
+                <i class="bi bi-arrow-left-right"></i> Transaction
+            </a>
+            <div class="collapse" id="transactionMenu">
+                <a class="nav-link" asp-controller="Purchase" asp-action="Purchases"><i class="bi bi-cart-check-fill me-2"></i> Purchase Invoice</a>
+            </div>
+        </div>
+
+        <!-- Reports Dropdown -->
+        <div class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#reportsMenu" role="button" aria-expanded="false" aria-controls="reportsMenu">
+                <i class="bi bi-bar-chart-fill"></i> Reports
+            </a>
+            <div class="collapse" id="reportsMenu">
+                <span class="nav-link"><i class="bi bi-clock-history me-2"></i> Coming Soon</span>
+            </div>
+        </div>
+       
+    </div>
+
+    <!-- ==================== CONTENT ==================== -->
+    <div class="content-wrapper">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            <i class="bi bi-c-circle"></i> 2026 - SoftTech ERP -
+            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+﻿@{
+    ViewData["Title"] = "Products";
+}
+
+<!-- Bootstrap & Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- DataTables -->
+<link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+<style>
+    .card {
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        border: none;
+    }
+
+    .card-header {
+        background: linear-gradient(90deg,#0d6efd,#0a58ca);
+        color: #fff;
+        padding: 15px 20px;
+    }
+
+    .input-group-text {
+        width: 45px;
+        justify-content: center;
+    }
+
+    table.dataTable thead {
+        background-color: #212529;
+        color: white;
+    }
+
+    label {
+        font-weight: 600;
+    }
+</style>
+
+<body class="">
+
+    <!-- PRODUCT FORM -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5><i class="bi bi-box-seam me-2"></i>Product Master</h5>
+        </div>
+        <div class="card-body">
+            <input type="hidden" id="IsEdit" value="0" />
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label><i class="bi bi-hash me-1"></i>Product Id</label>
+                    <input type="text" id="ProductId" class="form-control" />
+                </div>
+                <div class="col-md-5">
+                    <label><i class="bi bi-tag-fill me-1"></i>Product Name</label>
+                    <input type="text" id="ProductName" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label><i class="bi bi-tags-fill me-1"></i>Category</label>
+                    <select id="CategoryId" class="form-control select2"></select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><i class="bi bi-tags-fill me-1"></i>Sub Category</label>
+                    <select id="SubCategoryId" class="form-control select2"></select>
+                </div>
+                <div class="col-md-4">
+                    <label><i class="bi bi-cash-stack me-1"></i>Cost Price</label>
+                    <input type="number" id="CostPrice" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label><i class="bi bi-currency-dollar me-1"></i>Selling Price</label>
+                    <input type="number" id="SellingPrice" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><i class="bi bi-boxes me-1"></i>Stock Qty</label>
+                    <input type="number" id="StockQty" class="form-control" />
+                </div>
+                <div class="col-md-4 mt-4">
+                    <input type="checkbox" id="IsActive" /> <i class="bi bi-check2-circle text-success me-1"></i> Is Active
+                </div>
+            </div>
+
+            <button class="btn btn-success me-2" id="btnSaveProduct">
+                <i class="bi bi-save-fill me-1"></i>Save
+            </button>
+            <button class="btn btn-secondary" id="btnClearProduct">
+                <i class="bi bi-eraser-fill me-1"></i>Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- PRODUCT LIST -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5><i class="bi bi-table me-2"></i>Product List</h5>
+        </div>
+        <div class="card-body">
+            <table id="productTable" class="table table-bordered table-striped nowrap w-100">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-hash me-1"></i>Id</th>
+                        <th><i class="bi bi-tag-fill me-1"></i>Name</th>
+                        <th><i class="bi bi-tags-fill me-1"></i>Category</th>
+                        <th><i class="bi bi-tags-fill me-1"></i>Sub Category</th>
+                        <th><i class="bi bi-cash-stack me-1"></i>Cost</th>
+                        <th><i class="bi bi-currency-dollar me-1"></i>Price</th>
+                        <th><i class="bi bi-boxes me-1"></i>Stock</th>
+                        <th class="text-center"><i class="bi bi-check2-circle me-1"></i>Active</th>
+                        <th class="text-center"><i class="bi bi-gear-fill me-1"></i>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function(){
+
+            let table = $('#productTable').DataTable({
+                responsive:true,
+                ajax:{
+                    url:'/Product/GetProducts',
+                    type:'GET',
+                    dataSrc:''
+                },
+                columns:[
+                    {data:'productId'},
+                    {data:'productName'},
+                    {data:'categoryId'},
+                    {data:'subCategoryId'},
+                    {data:'costPrice'},
+                    {data:'sellingPrice'},
+                    {data:'stockQty'},
+                    {data:'isActive', className:'text-center', render:x=> x ? '<i class="bi bi-check-circle-fill text-success fs-5"></i>' : '<i class="bi bi-x-circle-fill text-danger fs-5"></i>'},
+                    {
+                        data:'productId', className:'text-center',
+                        render: function(id){
+                            return `
+                                <button class="btn btn-sm btn-warning me-1" onclick="editProduct('${id}')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${id}')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>`;
+                        }
+                    }
+                ]
+            });
+
+            // Load Categories
+            $('#CategoryId,#SubCategoryId').select2({ width:'100%', placeholder:'Select' });
+            $.get('/Category/GetCategories', function(d){
+                $('#CategoryId').html('<option></option>');
+                $.each(d,(i,x)=>{ $('#CategoryId').append(`<option value="${x.categoryId}">${x.categoryName}</option>`); });
+            });
+
+            $('#CategoryId').on('change', function(){
+                let id = $(this).val();
+                $('#SubCategoryId').html('<option></option>');
+                if(id){
+                    $.get('/Product/GetSubCategoriesByCategory?categoryId='+id, function(d){
+                        $.each(d,(i,x)=>{ $('#SubCategoryId').append(`<option value="${x.subCategoryId}">${x.subCategoryName}</option>`); });
+                    });
+                }
+            });
+
+            // SAVE / UPDATE
+            $('#btnSaveProduct').click(function(){
+                let obj={
+                    ProductId: $('#ProductId').val(),
+                    ProductName: $('#ProductName').val(),
+                    CategoryId: $('#CategoryId').val(),
+                    SubCategoryId: $('#SubCategoryId').val(),
+                    CostPrice: $('#CostPrice').val(),
+                    SellingPrice: $('#SellingPrice').val(),
+                    StockQty: $('#StockQty').val(),
+                    IsActive: $('#IsActive').is(':checked'),
+                    CmpyId:'CMP-01',
+                    BranchId:'BR-05',
+                    CreatedBy:'admin',
+                    CreatedOn: new Date(),
+                    ModifiedOn: new Date(),
+                    ModifiedBy:'admin'
+                };
+
+                $.ajax({
+                    url:'/Product/SaveProducts',
+                    type:'POST',
+                    contentType:'application/json',
+                    data: JSON.stringify(obj),
+                    success:function(res){
+                        if(res.success){
+                            Swal.fire('Success', res.message,'success');
+                            clearForm();
+                            table.ajax.reload();
+                        } else {
+                            Swal.fire('Error', res.message,'error');
+                        }
+                    }
+                });
+            });
+
+            // CLEAR FORM
+            function clearForm(){
+                $('#ProductId').val('').prop('readonly', false);
+                $('#ProductName').val('');
+                $('#CategoryId,#SubCategoryId').val(null).trigger('change');
+                $('#CostPrice').val('');
+                $('#SellingPrice').val('');
+                $('#StockQty').val('');
+                $('#IsActive').prop('checked', false);
+                $('#btnSaveProduct').text('Save');
+                $('#IsEdit').val('0');
+            }
+            $('#btnClearProduct').click(clearForm);
+
+            // EDIT PRODUCT
+            window.editProduct = function(id){
+                $.get('/Product/GetProductById',{ productId:id }, function(res){
+                    $('#ProductId').val(res.productId).prop('readonly',true);
+                    $('#ProductName').val(res.productName);
+                    $('#CategoryId').val(res.categoryId).trigger('change');
+
+                    setTimeout(()=>{ $('#SubCategoryId').val(res.subCategoryId).trigger('change'); },300);
+
+                    $('#CostPrice').val(res.costPrice);
+                    $('#SellingPrice').val(res.sellingPrice);
+                    $('#StockQty').val(res.stockQty);
+                    $('#IsActive').prop('checked', res.isActive);
+
+                    $('#btnSaveProduct').text('Update');
+                    $('#IsEdit').val('1');
+                });
+            };
+
+            // DELETE PRODUCT
+            window.deleteProduct = function(id){
+                Swal.fire({
+                    title:'Are you sure?',
+                    text:'This product will be deleted!',
+                    icon:'warning',
+                    showCancelButton:true,
+                    confirmButtonText:'Yes, delete it!'
+                }).then((result)=>{
+                    if(result.isConfirmed){
+                        $.ajax({
+                            url:'/Product/DeleteProduct',
+                            type:'POST',
+                            contentType:'application/json',
+                            data: JSON.stringify(id),
+                            success:function(res){
+                                Swal.fire('Deleted', res.message,'success');
+                                table.ajax.reload();
+                            }
+                        });
+                    }
+                });
+            }
+
+        });
+    </script>
+</body>

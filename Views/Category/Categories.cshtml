@@ -1,0 +1,248 @@
+﻿@{
+    ViewData["Title"] = "Category Master";
+    Layout = "_Layout";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" />
+
+<style>
+    .card {
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: none;
+    }
+
+    .card-header {
+        background: linear-gradient(90deg,#0d6efd,#0a58ca);
+        color: #fff;
+        padding: 15px 20px;
+    }
+
+    .input-group-text {
+        width: 45px;
+        justify-content: center;
+    }
+
+    table.dataTable thead {
+        background-color: #212529;
+        color: white;
+    }
+</style>
+
+<body class="">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-tags-fill me-2 "></i>Category Master
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Category ID</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark text-white">
+                            <i class="bi bi-hash"></i>
+                        </span>
+                        <input type="text" id="CategoryId" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label">Category Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-info text-white">
+                            <i class="bi bi-tag-fill"></i>
+                        </span>
+                        <input type="text" id="CategoryName" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-secondary text-white">
+                        <i class="bi bi-card-text"></i>
+                    </span>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isActive">
+                <label class="form-check-label">
+                    <i class="bi bi-check2-circle text-success me-1"></i>Is Active
+                </label>
+            </div>
+
+            <button class="btn btn-success me-2" id="btnSaveCategory">
+                <i class="bi bi-save-fill me-1"></i>Save
+            </button>
+
+            <button class="btn btn-warning me-2" id="btnUpdateCategory" style="display:none;">
+                <i class="bi bi-arrow-repeat me-1"></i>Update
+            </button>
+
+            <button class="btn btn-secondary" id="btnClearCategory">
+                <i class="bi bi-eraser-fill me-1"></i>Clear
+            </button>
+
+        </div>
+    </div>
+
+    <hr />
+
+    <h4>
+        <i class="bi bi-table me-2"></i>Saved Categories
+    </h4>
+
+    <table id="datatableStyle" class="table table-bordered table-hover table-striped nowrap w-100">
+        <thead>
+            <tr>
+                <th>Category ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    </table>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            var table = $('#datatableStyle').DataTable({
+                responsive: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 20, 50],
+                order: [],
+                ajax: {
+                    url: '/Category/GetCategories',
+                    type: "GET",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "categoryId" },
+                    { data: "categoryName" },
+                    { data: "description" },
+                    {
+                        data: "isActive",
+                        className: "text-center",
+                        render: d => d
+                            ? `<i class="bi bi-check-circle-fill text-success fs-5"></i>`
+                            : `<i class="bi bi-x-circle-fill text-danger fs-5"></i>`
+                    },
+                    {
+                        data: "categoryId",
+                        className: "text-center",
+                        render: id => `
+                            <button class="btn btn-warning btn-sm me-1" onclick="editCategory('${id}')">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCategory('${id}')">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>`
+                    }
+                ]
+            });
+
+            $("#btnSaveCategory").click(function () {
+
+                var isActive = $("#isActive").is(':checked');
+
+                $.post("/Category/SaveCategory", {
+                    CategoryId: $("#CategoryId").val(),
+                    CategoryName: $("#CategoryName").val(),
+                    Description: $("#Description").val(),
+                    isActive: isActive,
+                    CmpyId: "CMP-01",
+                    BranchId: "BR-05",
+                    CreatedOn: new Date(),
+                    CreatedBy: "admin1",
+                    ModifiedOn: new Date(),
+                    ModifiedBy: "Admin01"
+                }, function () {
+                    Swal.fire('Success', 'Category saved successfully', 'success');
+                    table.ajax.reload();
+                    clearForm();
+                });
+            });
+
+            $("#btnUpdateCategory").click(function () {
+
+                var isActive = $("#isActive").is(":checked");
+
+                $.post("/Category/UpdateCategory", {
+                    CategoryId: $("#CategoryId").val(),
+                    CategoryName: $("#CategoryName").val(),
+                    Description: $("#Description").val(),
+                    IsActive: isActive
+                }, function () {
+                    Swal.fire('Updated', 'Category updated successfully', 'success');
+                    table.ajax.reload();
+                    clearForm();
+                });
+            });
+
+            $("#btnClearCategory").click(function () {
+                clearForm();
+            });
+
+        });
+
+        function editCategory(id) {
+            $.get("/Category/GetCategoryById?id=" + id, function (data) {
+                $("#CategoryId").val(data.categoryId).prop("readonly", true);
+                $("#CategoryName").val(data.categoryName);
+                $("#Description").val(data.description);
+                $("#isActive").prop("checked", data.isActive);
+                $("#btnSaveCategory").hide();
+                $("#btnUpdateCategory").show();
+            });
+        }
+
+        function deleteCategory(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("/Category/DeleteCategory", { id: id }, function () {
+                        Swal.fire('Deleted!', 'Category has been deleted.', 'success');
+                        $('#datatableStyle').DataTable().ajax.reload();
+                    });
+                }
+            });
+        }
+
+        function clearForm() {
+            $("#CategoryId").val("").prop("readonly", false);
+            $("#CategoryName").val("");
+            $("#Description").val("");
+            $("#isActive").prop("checked", false);
+            $("#btnSaveCategory").show();
+            $("#btnUpdateCategory").hide();
+        }
+
+    </script>
+
+</body>
