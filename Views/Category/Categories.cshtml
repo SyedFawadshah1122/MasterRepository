@@ -25,8 +25,9 @@
         justify-content: center;
     }
 
+    /* DataTable header color only */
     table.dataTable thead {
-        background-color: #212529;
+        background-color: #198754; /* success green */
         color: white;
     }
 </style>
@@ -113,8 +114,6 @@
         </thead>
     </table>
 
-
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -122,7 +121,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-
         $(document).ready(function () {
 
             var table = $('#datatableStyle').DataTable({
@@ -161,9 +159,7 @@
             });
 
             $("#btnSaveCategory").click(function () {
-
                 var isActive = $("#isActive").is(':checked');
-
                 $.post("/Category/SaveCategory", {
                     CategoryId: $("#CategoryId").val(),
                     CategoryName: $("#CategoryName").val(),
@@ -183,9 +179,7 @@
             });
 
             $("#btnUpdateCategory").click(function () {
-
                 var isActive = $("#isActive").is(":checked");
-
                 $.post("/Category/UpdateCategory", {
                     CategoryId: $("#CategoryId").val(),
                     CategoryName: $("#CategoryName").val(),
@@ -242,7 +236,6 @@
             $("#btnSaveCategory").show();
             $("#btnUpdateCategory").hide();
         }
-
     </script>
 
 </body>

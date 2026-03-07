@@ -65,6 +65,7 @@ C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\Master3.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\Master3.RazorAssemblyInfo.cache
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\Master3.RazorAssemblyInfo.cs
+C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\Master3.sourcelink.json
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\rjimswa.dswa.cache.json
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\Users\syed fawad shah\OneDrive\Desktop\crud operation\MasterTest\Master3\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json

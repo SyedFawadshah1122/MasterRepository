@@ -1648,9 +1648,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\Master3.csproj",
-      "projectName": "Master3",
-      "projectPath": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\Master3.csproj",
+      "projectUniqueName": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\MasterClean.csproj",
+      "projectName": "MasterClean",
+      "projectPath": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\MasterClean.csproj",
       "packagesPath": "C:\\Users\\syed fawad shah\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\obj\\",
       "projectStyle": "PackageReference",

@@ -17,6 +17,17 @@ namespace Master3.Controllers
         {
             return View();
         }
+        public IActionResult overview()
+        {
+            return View();
+        }
+
+        public IActionResult Stats()
+        {
+            // Yahan aap data pass kar sakte ho (chart data, sales stats, etc.)
+            ViewData["Title"] = "Dashboard Stats";
+            return View();
+        }
 
         public IActionResult Privacy()
         {

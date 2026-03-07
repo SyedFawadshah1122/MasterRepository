@@ -31,17 +31,24 @@
         justify-content: center;
     }
 
-    table.dataTable thead {
-        background-color: #212529;
-        color: white;
+    /* DataTable header - success green + icons */
+    table.dataTable thead th {
+        background-color: #198754 !important; /* Bootstrap success green */
+        color: #ffffff !important; /* text white */
     }
+
+        table.dataTable thead th i {
+            color: #ffffff; /* icons white */
+            margin-left: 5px; /* spacing between text & icon */
+            vertical-align: middle; /* align with text */
+        }
 
     label {
         font-weight: 600;
     }
 </style>
 
-<body class="">
+<body>
 
     <!-- PRODUCT FORM -->
     <div class="card mt-3">

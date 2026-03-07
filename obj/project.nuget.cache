@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TVAedhRu8JY=",
+  "dgSpecHash": "TUHw/TzktD8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\Master3.csproj",
+  "projectFilePath": "C:\\Users\\syed fawad shah\\OneDrive\\Desktop\\crud operation\\MasterTest\\Master3\\MasterClean.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\syed fawad shah\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
     "C:\\Users\\syed fawad shah\\.nuget\\packages\\azure.identity\\1.17.1\\azure.identity.1.17.1.nupkg.sha512",

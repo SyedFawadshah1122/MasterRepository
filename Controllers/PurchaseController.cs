@@ -2,6 +2,7 @@
 using Master.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
@@ -16,6 +17,7 @@ namespace Master.Controllers
             _configuration = configuration;
         }
 
+       
         // =========================
         // MAIN VIEW
         // =========================
@@ -23,6 +25,7 @@ namespace Master.Controllers
         {
             return View();
         }
+
 
         // =========================
         // SUPPLIERS
@@ -94,33 +97,37 @@ namespace Master.Controllers
             if (vm.Details == null || vm.Details.Count == 0)
                 return BadRequest("Purchase detail missing");
 
-            var d = vm.Details.First();
-
-            using SqlConnection con =
-                new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-
-            using SqlCommand cmd = new SqlCommand("sp_PurchaseEntry", con)
+            using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            using SqlCommand cmd = new SqlCommand("sp_PurchaseEntry_Multi", con)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
-            cmd.Parameters.Add("@PurchaseDate", SqlDbType.Date).Value = vm.PurchaseDate;
-            cmd.Parameters.Add("@SupplierId", SqlDbType.NVarChar, 50).Value = vm.SupplierId;
-            cmd.Parameters.Add("@ProductId", SqlDbType.NVarChar, 50).Value = d.ProductId;
+            // Header params
+            cmd.Parameters.AddWithValue("@PurchaseDate", vm.PurchaseDate);
+            cmd.Parameters.AddWithValue("@CmpyId", "CMP-001");
+            cmd.Parameters.AddWithValue("@BranchId", "BR-001");
+            cmd.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
+            cmd.Parameters.AddWithValue("@CreatedBy", "admin");
+            cmd.Parameters.AddWithValue("@SupplierId", vm.SupplierId);
 
-            cmd.Parameters.Add("@Qty", SqlDbType.Decimal).Value = d.Qty;
-            cmd.Parameters.Add("@CostPrice", SqlDbType.Decimal).Value = d.CostPrice;
-            cmd.Parameters.Add("@Amount", SqlDbType.Decimal).Value = d.Amount;
-            cmd.Parameters.Add("@TotalAmount", SqlDbType.Decimal).Value = d.Amount;
+            // TVP – Multiple products
+            DataTable tvp = new DataTable();
+            tvp.Columns.Add("ProductId", typeof(string));
+            tvp.Columns.Add("Qty", typeof(decimal));
+            tvp.Columns.Add("CostPrice", typeof(decimal));
+            tvp.Columns.Add("Amount", typeof(decimal));
+            tvp.Columns.Add("Barcode", typeof(string));
+            tvp.Columns.Add("Active", typeof(bool));
 
-            cmd.Parameters.Add("@Barcode", SqlDbType.NVarChar, 100).Value = d.Barcode ?? "";
-            cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = true;
+            foreach (var d in vm.Details)
+            {
+                tvp.Rows.Add(d.ProductId, d.Qty, d.CostPrice, d.Amount, d.Barcode ?? "", true);
+            }
 
-            // Mock audit fields
-            cmd.Parameters.Add("@CmpyId", SqlDbType.NVarChar, 50).Value = "CMP-001";
-            cmd.Parameters.Add("@BranchId", SqlDbType.NVarChar, 50).Value = "BR-001";
-            cmd.Parameters.Add("@CreatedBy", SqlDbType.NVarChar, 50).Value = "admin";
-            cmd.Parameters.Add("@CreatedOn", SqlDbType.DateTime).Value = DateTime.Now;
+            var param = cmd.Parameters.AddWithValue("@Products", tvp);
+            param.SqlDbType = SqlDbType.Structured;
+            param.TypeName = "dbo.PurchaseProductType"; // TVP ka exact type
 
             con.Open();
             cmd.ExecuteNonQuery();
@@ -186,8 +193,8 @@ namespace Master.Controllers
             PH.PurchaseId,
             PH.PurchaseDate,
             PH.SupplierId,
-            S.SupplierName,
             PD.ProductId,
+            S.SupplierName,
             P.ProductName,
             PD.Qty,
             PD.CostPrice,
@@ -205,47 +212,24 @@ namespace Master.Controllers
             con.Open();
             SqlDataReader dr = cmd.ExecuteReader();
 
-            if (!dr.HasRows)
+            if (!dr.Read()) return NotFound();
+
+            var result = new
             {
-                con.Close();
-                return NotFound();
-            }
-
-            string _purchaseId = "";
-            DateTime _purchaseDate = DateTime.Now;
-            string _supplierId = "";
-            string _supplierName = "";
-
-            List<object> details = new List<object>();
-
-            while (dr.Read())
-            {
-                _purchaseId = dr["PurchaseId"].ToString();
-                _purchaseDate = Convert.ToDateTime(dr["PurchaseDate"]);
-                _supplierId = dr["SupplierId"].ToString();
-                _supplierName = dr["SupplierName"].ToString();
-
-                details.Add(new
-                {
-                    productId = dr["ProductId"].ToString(),
-                    productName = dr["ProductName"].ToString(),
-                    qty = Convert.ToDecimal(dr["Qty"]),
-                    costPrice = Convert.ToDecimal(dr["CostPrice"]),
-                    amount = Convert.ToDecimal(dr["Amount"]),
-                    barcode = dr["Barcode"].ToString()
-                });
-            }
+                purchaseId = dr["PurchaseId"].ToString(),
+                purchaseDate = Convert.ToDateTime(dr["PurchaseDate"]),
+                supplierId = dr["SupplierId"].ToString(),
+                productId = dr["ProductId"].ToString(),
+                supplierName = dr["SupplierName"].ToString(),
+                productName = dr["ProductName"].ToString(),
+                qty = Convert.ToDecimal(dr["Qty"]),
+                costPrice = Convert.ToDecimal(dr["CostPrice"]),
+                amount = Convert.ToDecimal(dr["Amount"]),
+                barcode = dr["Barcode"].ToString()
+            };
 
             con.Close();
-
-            return Ok(new
-            {
-                purchaseId = _purchaseId,
-                purchaseDate = _purchaseDate,
-                supplierId = _supplierId,
-                supplierName = _supplierName,
-                details = details
-            });
+            return Ok(result);
         }
 
 
@@ -294,6 +278,8 @@ namespace Master.Controllers
             return BadRequest("Update failed");
         }
 
+        // Delete---------------------------
+
         [HttpPost]
         public IActionResult DeletePurchase(string purchaseId)
         {
@@ -322,6 +308,112 @@ namespace Master.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+
+        // Report page view
+        public IActionResult ReportPage()
+        {
+            return View(); // Views/Purchase/ReportPage.cshtml
+        }
+
+
+        // Report----------------
+        [HttpGet]
+        public IActionResult GetPurchaseList(DateTime? fromDate, DateTime? toDate, int reportType = 0)
+        {
+            var list = new List<object>();
+            using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+
+            string query = @"
+        SELECT PH.PurchaseId, PH.PurchaseDate, S.SupplierName, P.ProductName, PD.Qty, PD.CostPrice, PD.Amount
+        FROM PurchaseHeader PH
+        INNER JOIN PurchaseDetail PD ON PH.PurchaseId = PD.PurchaseId
+        INNER JOIN Suppliers S ON PH.SupplierId = S.SupplierId
+        INNER JOIN Products P ON PD.ProductId = P.ProductId
+        WHERE 1=1";
+
+            if (fromDate.HasValue)
+                query += " AND PH.PurchaseDate >= @FromDate";
+            if (toDate.HasValue)
+                query += " AND PH.PurchaseDate <= @ToDate";
+            if (reportType == 1) // Monthly
+                query += " AND MONTH(PH.PurchaseDate) = MONTH(GETDATE()) AND YEAR(PH.PurchaseDate) = YEAR(GETDATE())";
+            else if (reportType == 2) // Yearly
+                query += " AND YEAR(PH.PurchaseDate) = YEAR(GETDATE())";
+
+            using SqlCommand cmd = new SqlCommand(query, con);
+            if (fromDate.HasValue) cmd.Parameters.AddWithValue("@FromDate", fromDate.Value);
+            if (toDate.HasValue) cmd.Parameters.AddWithValue("@ToDate", toDate.Value);
+
+            con.Open();
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                list.Add(new
+                {
+                    purchaseId = dr["PurchaseId"].ToString(),
+                    purchaseDate = Convert.ToDateTime(dr["PurchaseDate"]).ToString("yyyy-MM-dd"),
+                    supplierName = dr["SupplierName"].ToString(),
+                    productName = dr["ProductName"].ToString(),
+                    qty = Convert.ToDecimal(dr["Qty"]),
+                    costPrice = Convert.ToDecimal(dr["CostPrice"]),
+                    amount = Convert.ToDecimal(dr["Amount"])
+                });
+            }
+            con.Close();
+
+            return Json(new { data = list });
+        }
+
+        [HttpGet]
+        public IActionResult GetPurchaseSummary(DateTime? fromDate, DateTime? toDate, int reportType = 0)
+        {
+            var list = new List<object>();
+            using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+
+            string query = @"
+          SELECT 
+        S.SupplierName, 
+        CAST(PH.PurchaseDate AS DATE) AS PurchaseDate, 
+        SUM(PD.Qty) AS TotalQty, 
+        SUM(PD.Amount) AS TotalAmount
+        FROM PurchaseHeader PH
+        INNER JOIN PurchaseDetail PD ON PH.PurchaseId = PD.PurchaseId
+        INNER JOIN Suppliers S ON PH.SupplierId = S.SupplierId
+    WHERE 1=1";
+
+            if (fromDate.HasValue)
+                query += " AND PH.PurchaseDate >= @FromDate";
+            if (toDate.HasValue)
+                query += " AND PH.PurchaseDate <= @ToDate";
+
+            if (reportType == 1) // Monthly
+                query += " AND MONTH(PH.PurchaseDate) = MONTH(GETDATE()) AND YEAR(PH.PurchaseDate) = YEAR(GETDATE())";
+            else if (reportType == 2) // Yearly
+                query += " AND YEAR(PH.PurchaseDate) = YEAR(GETDATE())";
+
+            query += " GROUP BY S.SupplierName, CAST(PH.PurchaseDate AS DATE) ORDER BY S.SupplierName";
+
+            using SqlCommand cmd = new SqlCommand(query, con);
+            if (fromDate.HasValue) cmd.Parameters.AddWithValue("@FromDate", fromDate.Value);
+            if (toDate.HasValue) cmd.Parameters.AddWithValue("@ToDate", toDate.Value);
+
+            con.Open();
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                list.Add(new
+                {
+                    SupplierName = dr["SupplierName"].ToString(),
+                    PurchaseDate = Convert.ToDateTime(dr["PurchaseDate"]).ToString("yyyy-MM-dd"),
+                    TotalQty = Convert.ToDecimal(dr["TotalQty"]),
+                    TotalAmount = Convert.ToDecimal(dr["TotalAmount"])
+                });
+            }
+            con.Close();
+
+            return Json(new { data = list });
         }
 
 

@@ -36,8 +36,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Home/overview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxvdmVydmlldy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Home/Stats.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdGF0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Product/Products.cshtml]
@@ -46,6 +54,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Purchase/Purchases.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUHVyY2hhc2VzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Purchase/ReportPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUmVwb3J0UGFnZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/syed fawad shah/OneDrive/Desktop/crud operation/MasterTest/Master3/Views/Shared/Error.cshtml]

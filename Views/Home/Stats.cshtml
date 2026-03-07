@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Dashboard Stats";
+}
+
+<h2>Dashboard Statistics</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-3 mb-3 shadow-sm">
+            <h5><i class="bi bi-bar-chart-line text-success me-2"></i> Sales Overview</h5>
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3 mb-3 shadow-sm">
+            <h5><i class="bi bi-people-fill text-primary me-2"></i> User Growth</h5>
+            <canvas id="userChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxSales = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctxSales, {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May'],
+            datasets: [{
+                label: 'Sales ($)',
+                data: [1200, 1900, 3000, 2500, 4000],
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25,135,84,0.2)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    const ctxUser = document.getElementById('userChart').getContext('2d');
+    const userChart = new Chart(ctxUser, {
+        type: 'bar',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May'],
+            datasets: [{
+                label: 'Users',
+                data: [50, 70, 120, 90, 150],
+                backgroundColor: '#0dcaf0'
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>

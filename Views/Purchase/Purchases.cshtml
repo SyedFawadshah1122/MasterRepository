@@ -1,20 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Purchase Management";
-    Layout = "_Layout";
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
 
-    <!-- Bootstrap & Icons -->
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Datatables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <style>
         body {
@@ -30,8 +33,7 @@
         .card-header {
             background: linear-gradient(90deg,#0d6efd,#0a58ca);
             color: white;
-            border-top-left-radius: 14px;
-            border-top-right-radius: 14px;
+            border-radius: 14px 14px 0 0;
         }
 
         .input-group-text {
@@ -39,159 +41,143 @@
             justify-content: center;
         }
 
-        .btn-success, .btn-primary, .btn-secondary, .btn-warning {
+        .btn-success, .btn-warning {
             border-radius: 10px;
             padding: 10px 25px;
         }
 
-        table.dataTable thead {
-            background-color: #212529;
-            color: white;
+        table.dataTable thead th {
+            background-color: #212529 !important;
+            color: #fff !important;
+        }
+
+        #tblProductList th, #tblProductList td, #tblPurchases th, #tblPurchases td {
+            text-align: center;
+            vertical-align: middle;
         }
 
 
 
     </style>
+    
+       
 </head>
+<body class="p-0">
 
-<body>
+    <div class="container">
+        <div class="card main-card d-flex justify-content-center align-items-center" style="height:10vh; padding:1rem;">
+            <div class="row w-100 g-3">
 
-    <!-- ================= HEADER ================= -->
-    <div class="card  mt-3">
-        <div class="card-header">
-            <h5 class="mb-0">
-                <i class="bi bi-cart-check-fill me-2"></i>Purchase Header
-            </h5>
-        </div>
-
-        <div class="card-body">
-            <input type="hidden" id="PurchaseId">
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Purchase Date</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white">
-                            <i class="bi bi-calendar-date-fill"></i>
-                        </span>
-                        <input type="date" id="PurchaseDate" class="form-control">
-                    </div>
+                <div class="col-md-6 d-flex">
+                    <a href="/Purchase/purchases" class="btn btn-primary btn-lg w-100 d-flex justify-content-center align-items-center">
+                        <i class="bi bi-cart-plus me-2"></i> Purchase Entry
+                    </a>
                 </div>
 
-                <div class="col-md-8">
-                    <label class="form-label">Supplier</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-success text-white">
-                            <i class="bi bi-person-fill"></i>
-                        </span>
-                        <select id="SupplierId" class="form-select">
-                            <option value="">-- Select Supplier --</option>
-                        </select>
-                    </div>
+                <div class="col-md-6 d-flex">
+                    <a href="/PurchaseReturn/index" class="btn btn-success btn-lg w-100 d-flex justify-content-center align-items-center">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i> Purchase Return
+                    </a>
                 </div>
 
             </div>
         </div>
     </div>
-
-    <!-- ================= DETAILS ================= -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">
-                <i class="bi bi-bag-check-fill me-2"></i>Purchase Details
-            </h5>
-        </div>
-
+    <!-- HEADER -->
+    <div class="card mt-3">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-cart-check-fill me-2"></i>Purchase Header</h5></div>
         <div class="card-body">
-
+            <input type="hidden" id="PurchaseId">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label class="form-label">Product</label>
+                    <label class="form-label ">Purchase Date</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-info text-white">
-                            <i class="bi bi-box-seam-fill"></i>
-                        </span>
-                        <select id="ProductId" class="form-select">
-                            <option value="">-- Select Product --</option>
-                        </select>
+                        <span class="input-group-text bg-primary text-white"><i class="bi bi-calendar-date-fill"></i></span>
+                        <input type="date" id="PurchaseDate" class="form-control">
                     </div>
                 </div>
+                <div class="col-md-8">
+                    <label class="form-label bi bi-person-fill">Supplier</label>
+                    <div class="input-group">
+                        <select id="SupplierId" class="form-select"><option value="">-- Select Supplier --</option></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- DETAILS -->
+    <div class="card mt-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-bag-check-fill me-2"></i>Purchase Details</h5></div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label bi bi-box-seam-fill">Product</label>
+                    <div class="input-group">
+                        <select id="ProductId" class="form-select"><option value="">-- Select Product --</option></select>
+                    </div>
+                </div>
                 <div class="col-md-2">
                     <label class="form-label">Qty</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-warning text-dark">
-                            <i class="bi bi-123"></i>
-                        </span>
+                        <span class="input-group-text bg-warning text-dark"><i class="bi bi-123"></i></span>
                         <input type="text" id="Qty" class="form-control">
                     </div>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Cost Price</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-secondary text-white">
-                            <i class="bi bi-currency-dollar"></i>
-                        </span>
+                        <span class="input-group-text bg-secondary text-white"><i class="bi bi-currency-dollar"></i></span>
                         <input type="text" id="CostPrice" class="form-control">
                     </div>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Amount</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-dark text-white">
-                            <i class="bi bi-calculator-fill"></i>
-                        </span>
+                        <span class="input-group-text bg-dark text-white"><i class="bi bi-calculator-fill"></i></span>
                         <input type="text" id="Amount" class="form-control" readonly>
                     </div>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Barcode</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-danger text-white">
-                            <i class="bi bi-upc-scan"></i>
-                        </span>
+                        <span class="input-group-text bg-danger text-white"><i class="bi bi-upc-scan"></i></span>
                         <input type="text" id="Barcode" class="form-control">
                     </div>
                 </div>
             </div>
 
-            <!-- ================= BUTTONS ================= -->
-            <div class="text-end mb-3">
-                <button id="btnAddToList" class="btn btn-primary btn-lg me-2">
-                    <i class="bi bi-plus-square-fill me-2"></i>Add to List
-                </button>
-                <button id="btnClearForm" class="btn btn-secondary btn-lg me-2">
-                    <i class="bi bi-eraser-fill me-2"></i>Clear
-                </button>
-                <button id="btnSubmitPurchase" class="btn btn-success btn-lg">
-                    <i class="bi bi-cart-plus-fill me-2"></i>Purchase
-                </button>
+            <div class="mb-3">
+                <button type="button" id="btnAddToList" class="btn btn-primary me-2"><i class="bi bi-cart-plus-fill me-1"></i>Add To List</button>
+                <button type="button" id="btnClearProduct" class="btn btn-secondary"><i class="bi bi-x-lg me-1"></i>Clear</button>
             </div>
 
-            <!-- ================= LIST/TABLE ================= -->
-            <h5>Purchase Items List</h5>
-            <table id="tblPurchaseList" class="table table-bordered table-striped">
+            <table class="table table-bordered mt-3" id="tblProductList">
                 <thead>
                     <tr>
                         <th>Product</th>
                         <th>Qty</th>
                         <th>Cost Price</th>
                         <th>Amount</th>
-                        <th>Barcode</th>
-                        <th>Actions</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- JS will append items here -->
-                </tbody>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">Total</th>
+                        <th id="totalAmount">0</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
 
-            <!-- ================= EXISTING PURCHASE TABLE ================= -->
-            <h5 class="mt-4">Saved Purchases</h5>
-            <table id="tblPurchases" class="table table-bordered table-striped">
+            <div class="text-end mb-3">
+                <button id="btnSubmitPurchase" class="btn btn-success btn-lg"><i class="bi bi-cart-check-fill me-2"></i>Purchase</button>
+                <button class="btn btn-info text-white btn-lg" onclick="openReportPage()"><i class="bi bi-file-earmark-text-fill me-2"></i>Report</button>
+            </div>
+
+            <table id="tblPurchases" class="table table-bordered table-striped mt-4">
                 <thead>
                     <tr>
                         <th>Purchase ID</th>
@@ -204,357 +190,218 @@
                     </tr>
                 </thead>
             </table>
-
         </div>
     </div>
 
-    <!-- ================= SCRIPTS ================= -->
+    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- head me add karo -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- body ke end me scripts -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    $(document).ready(function(){
-        // sirf ye 2 dropdowns ko searchable banado
-        $("#SupplierId,#ProductId").select2({
-            placeholder: "-- Select --",
-            width: '100%'
-        });
-    });
-</script>
     <script>
-              let table;
-        let purchaseList = [];
+        let table;
+        let productList = [];
 
-        // ------------------- LOAD SUPPLIERS & PRODUCTS -------------------
-        function LoadSuppliers() {
-            $.get("/Purchase/GetSuppliers", function(res) {
-                $("#SupplierId").html(`<option value="">-- Select Supplier --</option>`);
-                $.each(res, function(i, v){
+        // Load suppliers
+        function LoadSuppliers(){
+            $.get("/Purchase/GetSuppliers", function(res){
+                $("#SupplierId").html('<option></option>');
+                $.each(res, function(i,v){
                     $("#SupplierId").append(`<option value="${v.supplierId}">${v.supplierName}</option>`);
                 });
+                if($('#SupplierId').hasClass("select2-hidden-accessible")) $('#SupplierId').select2('destroy');
+                $('#SupplierId').select2({ width:'100%', placeholder:'Select Supplier', allowClear:true });
             });
         }
 
-        function LoadProducts() {
-            $.get("/Purchase/GetProducts", function(res) {
-                $("#ProductId").html(`<option value="">-- Select Product --</option>`);
-                $.each(res, function(i, v){
+        // Load products
+        function LoadProducts(){
+            $.get("/Purchase/GetProducts", function(res){
+                $("#ProductId").html('<option></option>');
+                $.each(res,function(i,v){
                     $("#ProductId").append(`<option value="${v.productId}">${v.productName}</option>`);
                 });
+                if($('#ProductId').hasClass("select2-hidden-accessible")) $('#ProductId').select2('destroy');
+                $('#ProductId').select2({ width:'100%', placeholder:'Select Product', allowClear:true });
             });
         }
 
-        // ------------------- CLEAR DETAIL FORM -------------------
-        function ClearDetailForm(){
-            $("#ProductId,#Qty,#CostPrice,#Amount,#Barcode").val("");
-        }
-
-        $("#btnClearForm").click(ClearDetailForm);
-
-        // ------------------- ADD TO LIST -------------------
+        // Add to product list
         $("#btnAddToList").click(function(){
             let productId = $("#ProductId").val();
             let productName = $("#ProductId option:selected").text();
             let qty = parseFloat($("#Qty").val()) || 0;
             let cost = parseFloat($("#CostPrice").val()) || 0;
-            let amount = parseFloat($("#Amount").val()) || 0;
-            let barcode = $("#Barcode").val();
-
-            if(!productId || qty<=0 || cost<=0){
-                Swal.fire("Warning","Please fill Product, Qty, and Cost","warning");
-                return;
-            }
-
-            purchaseList.push({ productId, productName, qty, cost, amount, barcode });
-            RenderPurchaseList();
-            ClearDetailForm();
+            let amount = qty * cost;
+            if(!productId || qty<=0 || cost<=0){ Swal.fire("Warning","Select product & valid Qty/Cost","warning"); return; }
+            productList.push({ productId, productName, qty, costPrice:cost, amount, barcode: $("#Barcode").val() });
+            renderProductList();
+            clearProductFields();
         });
 
-        // ------------------- RENDER PURCHASE LIST -------------------
-        function RenderPurchaseList(){
-            let tbody = $("#tblPurchaseList tbody");
-            tbody.empty();
-            purchaseList.forEach((item,index)=>{
-                tbody.append(`
-                    <tr>
-                        <td>${item.productName}</td>
-                        <td>${item.qty}</td>
-                        <td>${item.cost}</td>
-                        <td>${item.amount}</td>
-                        <td>${item.barcode}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="RemoveFromList(${index})">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `);
+        $("#btnClearProduct").click(clearProductFields);
+        function clearProductFields(){ $("#ProductId,#Qty,#CostPrice,#Amount,#Barcode").val("").trigger('change'); }
+
+        // Render product list table
+        function renderProductList(){
+            let tbody = $("#tblProductList tbody"); tbody.empty();
+            let total = 0;
+            productList.forEach((p,i)=>{
+                total += p.amount;
+                tbody.append(`<tr>
+                    <td>${p.productName}</td>
+                    <td>${p.qty}</td>
+                    <td>${p.costPrice}</td>
+                    <td>${p.amount.toFixed(2)}</td>
+                    <td><button class="btn btn-sm btn-danger removeItem" data-index="${i}"><i class="bi bi-trash-fill"></i></button></td>
+                </tr>`);
+            });
+            $("#totalAmount").text(total.toFixed(2));
+            $(".removeItem").click(function(){
+                productList.splice($(this).data("index"),1);
+                renderProductList();
             });
         }
 
-        function RemoveFromList(index){
-            purchaseList.splice(index,1);
-            RenderPurchaseList();
-        }
-
-        // ------------------- ADD PURCHASE -------------------
-        function AddPurchase(){
-            if(purchaseList.length==0){
-                Swal.fire("Warning","Please add items to list first","warning");
+        // Add purchase
+               function AddPurchase() {
+            if (productList.length === 0) {
+                Swal.fire("Warning", "Add at least one product", "warning");
                 return;
             }
 
             let vm = {
                 purchaseDate: $("#PurchaseDate").val(),
                 supplierId: $("#SupplierId").val(),
-                details: purchaseList
+                details: productList
             };
 
-            if(!vm.purchaseDate || !vm.supplierId){
-                Swal.fire("Warning","Please select Purchase Date & Supplier","warning");
+            if (!vm.purchaseDate || !vm.supplierId) {
+                Swal.fire("Warning", "Fill all required fields", "warning");
                 return;
             }
 
             $.ajax({
-                url:"/Purchase/AddPurchase",
-                type:"POST",
-                contentType:"application/json",
-                data: JSON.stringify(vm),
-                success:function(){
-                    Swal.fire("Success","Purchase saved","success");
-                    purchaseList=[];
-                    RenderPurchaseList();
-                    ClearDetailForm();
-                    table.ajax.reload();
-                },
-                error:function(){ Swal.fire("Error","Could not save purchase","error"); }
-            });
-        }
-
-        // ------------------- UPDATE PURCHASE -------------------
-        function UpdatePurchase(){
-            let purchaseId = $("#PurchaseId").val();
-            if(!purchaseId){
-                Swal.fire("Error","PurchaseId missing","error");
-                return;
-            }
-
-            if(purchaseList.length == 0){
-                Swal.fire("Warning","Purchase list is empty","warning");
-                return;
-            }
-
-            let vm = {
-                purchaseId: purchaseId,
-                purchaseDate: $("#PurchaseDate").val(),
-                supplierId: $("#SupplierId").val(),
-                details: purchaseList.map(item => ({
-                    productId: item.productId,
-                    qty: item.qty,
-                    costPrice: item.cost,
-                    amount: item.amount,
-                    barcode: item.barcode
-                }))
-            };
-
-            $.ajax({
-                url: "/Purchase/UpdatePurchase",
+                url: "/Purchase/AddPurchase",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(vm),
                 success: function () {
-                    Swal.fire("Success","Purchase updated successfully","success");
-
-                    // Clear list & table
-                    purchaseList = [];
-                    RenderPurchaseList();
-                    ClearDetailForm();
+                    Swal.fire("Success", "Purchase saved", "success");
+                    ClearForm();
+                    productList = [];
+                    renderProductList();
                     table.ajax.reload();
-
-                    // 🔄 Button wapas "Purchase" aur AddPurchase bind
-                    $("#btnSubmitPurchase")
-                        .text("Purchase")
-                        .removeClass("btn-warning")
-                        .addClass("btn-success")
-                        .off("click")
-                        .on("click", AddPurchase);
                 },
                 error: function (xhr) {
-                    Swal.fire("Error", xhr.responseText || "Update failed","error");
+                    Swal.fire("Error", xhr.responseText || "Could not save purchase", "error");
                 }
             });
         }
 
-        // ------------------- EDIT PURCHASE -------------------
-        function EditPurchase(id){
-            if(!id){
-                Swal.fire("Error","Invalid PurchaseId","error");
-                return;
-            }
+               function ClearForm(){
+            $("#PurchaseId").val("");
+            $("#PurchaseDate").val("");
 
-            $.get("/Purchase/GetPurchaseById",{ purchaseId: id }, function(d){
+            // ✅ Supplier properly clear with Select2
+            $("#SupplierId").val(null).trigger("change");
+
+            clearProductFields();
+
+            $("#btnSubmitPurchase")
+                .text("Purchase")
+                .removeClass("btn-warning")
+                .addClass("btn-success")
+                .off("click")
+                .on("click", AddPurchase);
+        }
+        // Edit, Update, Delete Purchase
+        function EditPurchase(id){
+            $.get("/Purchase/GetPurchaseById",{purchaseId:id}, function(d){
                 $("#PurchaseId").val(d.purchaseId);
                 $("#PurchaseDate").val(d.purchaseDate.split('T')[0]);
-                $("#SupplierId").val(d.supplierId);
-
-                purchaseList = [];
-                d.details.forEach(item=>{
-                    purchaseList.push({
-                        productId: item.productId,
-                        productName: item.productName,
-                        qty: item.qty,
-                        cost: item.costPrice,
-                        amount: item.amount,
-                        barcode: item.barcode
-                    });
-                });
-
-                RenderPurchaseList();
-
-                $("#btnSubmitPurchase")
-                    .text("Update Purchase")
-                    .removeClass("btn-success")
-                    .addClass("btn-warning")
-                    .off("click")
-                    .on("click", UpdatePurchase);
-            })
-            .fail(function(){
-                Swal.fire("Error","Could not load purchase","error");
+                $("#SupplierId").val(d.supplierId).trigger('change');
+                $("#ProductId").val(d.productId).trigger('change');
+                $("#Qty").val(d.qty);
+                $("#CostPrice").val(d.costPrice);
+                $("#Amount").val(d.amount);
+                $("#Barcode").val(d.barcode);
+                $("#btnSubmitPurchase").text("Update Purchase").removeClass("btn-success").addClass("btn-warning").off("click").on("click", UpdatePurchase);
             });
         }
 
-        // ------------------- DELETE PURCHASE -------------------
-        function DeletePurchase(id){
-            if (!id) {
-                Swal.fire("Error", "Invalid PurchaseId", "error");
-                return;
-            }
+        function UpdatePurchase(){
+            let purchaseId = $("#PurchaseId").val();
+            if(!purchaseId){ Swal.fire("Error","PurchaseId missing","error"); return; }
+            let vm = {
+                purchaseId: purchaseId,
+                purchaseDate: $("#PurchaseDate").val(),
+                supplierId: $("#SupplierId").val(),
+                details:[{
+                    productId: $("#ProductId").val(),
+                    qty: parseFloat($("#Qty").val())||0,
+                    costPrice: parseFloat($("#CostPrice").val())||0,
+                    amount: parseFloat($("#Amount").val())||0,
+                    barcode: $("#Barcode").val()
+                }]
+            };
+            $.ajax({
+                url:"/Purchase/UpdatePurchase",
+                type:"POST", contentType:"application/json", data:JSON.stringify(vm),
+                success:function(){ Swal.fire("Success","Purchase updated","success"); ClearForm(); table.ajax.reload(); },
+                error:function(xhr){ Swal.fire("Error",xhr.responseText||"Update failed","error"); }
+            });
+        }
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This purchase will be permanently deleted!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "/Purchase/DeletePurchase",
-                        type: "POST",
-                        data: { purchaseId: id },
-                        success: function () {
-                            Swal.fire("Deleted", "Purchase deleted successfully", "success");
-                            table.ajax.reload();
-                        },
-                        error: function (xhr) {
-                            Swal.fire("Error", xhr.responseText || "Delete failed", "error");
-                        }
-                    });
+        function DeletePurchase(id){
+            Swal.fire({ title:"Are you sure?", text:"This purchase will be permanently deleted!", icon:"warning", showCancelButton:true, confirmButtonColor:"#d33", confirmButtonText:"Yes, delete it!" })
+            .then((result)=>{
+                if(result.isConfirmed){
+                    $.post("/Purchase/DeletePurchase",{purchaseId:id}, function(){ Swal.fire("Deleted","Purchase deleted","success"); table.ajax.reload(); });
                 }
             });
         }
 
-        // ------------------- PRINT PURCHASE -------------------
-              function PrintPurchase(id){
+        // Print Purchase
+        function PrintPurchase(id){
             $.get("/Purchase/GetPurchaseById",{purchaseId:id}, function(d){
+                let logoUrl = '@Url.Content("/1.jpg")';
                 let w = window.open('','','width=900,height=700');
-
-                // Build table rows dynamically
-                let rows = '';
-                let totalAmount = 0;
-                d.details.forEach(item => {
-                    rows += `
-                        <tr>
-                            <td>${item.productName}</td>
-                            <td>${item.qty}</td>
-                            <td>${item.costPrice}</td>
-                            <td>${item.amount}</td>
-                        </tr>
-                    `;
-                    totalAmount += item.amount;
-                });
-
-                // Fixed logo path (use relative path or server variable)
-                const logoUrl = '/1.jpg'; // <-- agar image wwwroot me hai
-
-                // Full HTML content
                 w.document.write(`
-                    <html>
-                    <head>
-                        <title>Purchase Invoice</title>
-                        <style>
-                            body { font-family: 'Segoe UI', sans-serif; margin:0; padding:0; background:#f4f6f9; }
-                            .invoice-container { width:850px; margin:20px auto; background:#fff; padding:30px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
-                            .header { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0d6efd; padding-bottom:15px;}
-                            .company-details { text-align:right;}
-                            .company-details h2 { margin:0; color:#0d6efd;}
-                            .invoice-title { text-align:center; font-size:26px; margin:20px 0; font-weight:bold; color:#333;}
-                            .info-section div { margin-bottom:5px; font-size:15px;}
-                            .info-section span { font-weight:600;}
-                            table { width:100%; border-collapse:collapse; margin-top:20px;}
-                            table th, table td { border:1px solid #ddd; padding:12px; text-align:center;}
-                            table thead { background-color:#0d6efd; color:white;}
-                            .total-section { text-align:right; font-weight:bold; font-size:18px; margin-top:20px; color:#0d6efd;}
-                            .footer { text-align:center; font-size:13px; color:#777; margin-top:40px; border-top:1px solid #ddd; padding-top:10px;}
-                        </style>
-                    </head>
-                    <body>
-                        <div class="invoice-container">
-                            <div class="header">
-                                <div><img src="${logoUrl}" alt="Logo" height="70"/></div>
-                                <div class="company-details">
-                                    <h2>EZware Technologies</h2>
-                                    <div>Enterprise Software & ERP Solutions</div>
-                                    <div>Abu Dhabi & Dubai – UAE</div>
-                                </div>
-                            </div>
-
-                            <div class="invoice-title">PURCHASE INVOICE</div>
-
-                            <div class="info-section">
-                                <div><span>Purchase ID:</span> ${d.purchaseId}</div>
-                                <div><span>Supplier:</span> ${d.supplierName}</div>
-                                <div><span>Date:</span> ${d.purchaseDate.split('T')[0]}</div>
-                            </div>
-
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Quantity</th>
-                                        <th>Cost Price</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rows}
-                                </tbody>
-                            </table>
-
-                            <div class="total-section">Total Amount: ${totalAmount}</div>
-
-                            <div class="footer">
-                                Thank you for doing business with EZware Technologies<br>
-                                www.ezwaretechnologies.com
-                            </div>
+                    <html><head><title>Purchase Invoice</title></head>
+                    <body style="font-family:Segoe UI;padding:0;margin:0;">
+                    <div style="width:850px;margin:20px auto;padding:30px;background:#fff;border-radius:10px;">
+                    <div style="display:flex;justify-content:space-between;border-bottom:3px solid #0d6efd;padding-bottom:15px;">
+                        <img src="${logoUrl}" style="height:70px"/>
+                        <div style="text-align:right;color:#0d6efd">
+                            <h2>EZware Technologies</h2>
+                            <div>Enterprise Software & ERP Solutions</div>
+                            <div>Abu Dhabi & Dubai – UAE</div>
                         </div>
-                    </body>
-                    </html>
-                `);
-
-                w.document.close();
-                w.print();
+                    </div>
+                    <h2 style="text-align:center;margin:25px 0;color:#333;">PURCHASE INVOICE</h2>
+                    <div>Purchase ID: ${d.purchaseId}</div>
+                    <div>Supplier: ${d.supplierName}</div>
+                    <div>Date: ${d.purchaseDate.split('T')[0]}</div>
+                    <table border="1" cellpadding="10" cellspacing="0" style="width:100%;margin-top:20px;border-collapse:collapse;text-align:center;">
+                        <thead style="background:#0d6efd;color:white;">
+                            <tr><th>Product</th><th>Quantity</th><th>Cost Price</th><th>Amount</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>${d.productName}</td><td>${d.qty}</td><td>${d.costPrice}</td><td>${d.amount}</td></tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align:right;font-weight:bold;margin-top:20px;color:#0d6efd;">Total Amount: ${d.amount}</div>
+                    </div></body></html>`);
+                w.document.close(); w.print();
             });
         }
 
-        // ------------------- EXISTING PURCHASE TABLE -------------------
+        function openReportPage(){ window.location.href="/Purchase/ReportPage"; }
+
+        // Load DataTable
         function LoadTable(){
             table = $("#tblPurchases").DataTable({
                 ajax:"/Purchase/GetPurchases",
@@ -567,33 +414,25 @@
                     {data:"totalAmount"},
                     {data:"purchaseId",
                      render:function(id){
-                        return `
-                            <div class="d-flex gap-1">
-                                <button class="btn btn-sm btn-primary" onclick="EditPurchase('${id}')"><i class="bi bi-pencil-fill"></i></button>
-                                <button class="btn btn-sm btn-info text-white" onclick="PrintPurchase('${id}')"><i class="bi bi-printer-fill"></i></button>
-                                <button class="btn btn-sm btn-danger" onclick="DeletePurchase('${id}')"><i class="bi bi-trash-fill"></i></button>
-                            </div>`;
-                     }
-                    }
+                        return `<div class="d-flex gap-1 w-100">
+                            <button class="btn btn-sm btn-primary" onclick="EditPurchase('${id}')"><i class="bi bi-pencil-fill"></i></button>
+                            <button class="btn btn-sm btn-info text-white" onclick="PrintPurchase('${id}')"><i class="bi bi-printer-fill"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="DeletePurchase('${id}')"><i class="bi bi-trash-fill"></i></button>
+                        </div>`;
+                     }}
                 ]
             });
         }
 
-        // ------------------- INIT -------------------
         $(document).ready(function(){
-            LoadSuppliers();
-            LoadProducts();
-            LoadTable();
-
+            LoadSuppliers(); LoadProducts(); LoadTable();
+            $("#btnSubmitPurchase").click(AddPurchase);
             $("#Qty,#CostPrice").on("keyup change",function(){
                 let qty=parseFloat($("#Qty").val())||0;
                 let cost=parseFloat($("#CostPrice").val())||0;
                 $("#Amount").val((qty*cost).toFixed(2));
             });
-
-            $("#btnSubmitPurchase").on("click", AddPurchase);
         });
     </script>
-
 </body>
 </html>

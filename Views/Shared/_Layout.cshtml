@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewData["Title"] = "SoftTech ERP Dashboard";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -18,16 +22,13 @@
             align-items: center;
             justify-content: space-between;
             padding: 0.9rem 0.2rem;
-            color:#fff;
+            color: #fff;
             position: fixed;
             top: 0;
             z-index: 1200;
-
-             
         }
 
         .brand-dropdown {
-            position: relative;
             cursor: pointer;
             font-weight: 700;
             font-size: 18px;
@@ -35,44 +36,7 @@
 
             .brand-dropdown i {
                 margin-left: 5px;
-            }
-
-            .brand-dropdown .brand-menu {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                background: #1b1f3b;
-                min-width: 220px;
-                border-radius: 5px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                padding: 10px 0;
-                z-index: 1300;
-            }
-
-            .brand-dropdown:hover .brand-menu {
-                display: block;
-            }
-
-            .brand-dropdown .brand-menu a,
-            .brand-dropdown .brand-menu span {
-                display: block;
-                color: #fff;
-                padding: 8px 15px;
-                text-decoration: none;
-            }
-
-                .brand-dropdown .brand-menu a i {
-                    margin-right: 8px;
-                }
-
-                .brand-dropdown .brand-menu a:hover {
-                    background: rgba(255,255,255,0.1);
-                }
-
-            .brand-dropdown .brand-menu hr {
-                margin: 5px 0;
-                border-color: rgba(255,255,255,0.2);
+                color: #ffc107;
             }
 
         .search-bar input {
@@ -82,7 +46,7 @@
         /* ==================== SIDEBAR ==================== */
         .sidebar {
             position: fixed;
-            top: 56px; /* below top navbar */
+            top: 56px;
             left: 0;
             height: calc(100% - 56px);
             width: 220px;
@@ -104,6 +68,27 @@
                 .sidebar .nav-link i {
                     font-size: 1.3rem;
                     margin-right: 10px;
+                    transition: color 0.3s;
+                }
+
+                .sidebar .nav-link.dashboard i {
+                    color: #0dcaf0;
+                }
+
+                .sidebar .nav-link.master i {
+                    color: #0d6efd;
+                }
+
+                .sidebar .nav-link.transaction i {
+                    color: #198754;
+                }
+
+                .sidebar .nav-link.reports i {
+                    color: #fd7e14;
+                }
+
+                .sidebar .nav-link:hover i {
+                    color: #ffc107;
                 }
 
                 .sidebar .nav-link:hover {
@@ -111,10 +96,9 @@
                     border-radius: 8px;
                 }
 
-        /* ==================== CONTENT WRAPPER ==================== */
         .content-wrapper {
             margin-left: 220px;
-            padding: 80px 20px 20px 20px; /* top padding for navbar */
+            padding: 80px 20px 20px 20px;
         }
 
         footer {
@@ -128,17 +112,12 @@
 </head>
 
 <body>
-
     <!-- ==================== TOP NAVBAR ==================== -->
     <nav class="top-navbar">
-        <div class="brand-dropdown">
-            <h7>SoftTech ERP</h7>   <i class="bi bi-caret-down-fill"></i>
-            
-
-                
-                
+        <div class="brand-dropdown" id="brandClick">
+            <h7>SoftTech ERP</h7>
+            <i class="bi bi-caret-down-fill"></i>
         </div>
-
         <div class="search-bar">
             <input type="search" class="form-control form-control-sm" placeholder="Search...">
         </div>
@@ -147,44 +126,54 @@
     <!-- ==================== SIDEBAR ==================== -->
     <div class="sidebar">
 
-        <!-- NAVBAR INSIDE SIDEBAR -->
-     
+        <!-- Dashboard -->
+        <div class="nav-item">
+            <a class="nav-link dashboard" data-bs-toggle="collapse" href="#dashboardMenu" role="button" aria-expanded="false">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <div class="collapse" id="dashboardMenu">
+                <a class="nav-link" asp-controller="Home" asp-action="Overview"><i class="bi bi-house me-2" style="color:#ffc107;"></i> Overview</a>
+                <a class="nav-link" asp-controller="Home" asp-action="Stats"><i class="bi bi-bar-chart-line me-2" style="color:#0dcaf0;"></i> Stats</a>
+            </div>
+        </div>
 
-        <!-- ==================== SIDEBAR LINKS ==================== -->
         <!-- Master Dropdown -->
         <div class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#masterMenu" role="button" aria-expanded="false" aria-controls="masterMenu">
+            <a class="nav-link master" data-bs-toggle="collapse" href="#masterMenu" role="button" aria-expanded="false">
                 <i class="bi bi-gear-fill"></i> Master
             </a>
             <div class="collapse" id="masterMenu">
-                <a class="nav-link" asp-controller="Category" asp-action="Categories"><i class="bi bi-diagram-3-fill me-2"></i> Category</a>
-                <a class="nav-link" asp-controller="Category" asp-action="SubCategories"><i class="bi bi-diagram-3-fill me-3"></i> Sub Category</a>
-                <a class="nav-link" asp-controller="Product" asp-action="Products"><i class="bi bi-box-fill me-2"></i> Products</a>
-                <a class="nav-link" asp-controller="Supplier" asp-action="Suppliers"><i class="bi bi-truck me-2"></i> Supplier</a>
-                <a class="nav-link" asp-controller="Customer" asp-action="Customers"><i class="bi bi-people-fill me-2"></i> Customer</a>
+                <a class="nav-link" asp-controller="Category" asp-action="Categories"><i class="bi bi-diagram-3-fill me-2" style="color:#ffc107;"></i> Category</a>
+                <a class="nav-link" asp-controller="Category" asp-action="SubCategories"><i class="bi bi-diagram-3-fill me-3" style="color:#0dcaf0;"></i> Sub Category</a>
+                <a class="nav-link" asp-controller="Product" asp-action="Products"><i class="bi bi-box-fill me-2" style="color:#198754;"></i> Products</a>
+                <a class="nav-link" asp-controller="Supplier" asp-action="Suppliers"><i class="bi bi-truck me-2" style="color:#fd7e14;"></i> Supplier</a>
+                <a class="nav-link" asp-controller="Customer" asp-action="Customers"><i class="bi bi-people-fill me-2" style="color:#6610f2;"></i> Customer</a>
             </div>
         </div>
 
         <!-- Transaction Dropdown -->
         <div class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#transactionMenu" role="button" aria-expanded="false" aria-controls="transactionMenu">
+            <a class="nav-link transaction" data-bs-toggle="collapse" href="#transactionMenu" role="button" aria-expanded="false">
                 <i class="bi bi-arrow-left-right"></i> Transaction
             </a>
             <div class="collapse" id="transactionMenu">
                 <a class="nav-link" asp-controller="Purchase" asp-action="Purchases"><i class="bi bi-cart-check-fill me-2"></i> Purchase Invoice</a>
+            
+                
             </div>
+            
         </div>
 
         <!-- Reports Dropdown -->
         <div class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#reportsMenu" role="button" aria-expanded="false" aria-controls="reportsMenu">
+            <a class="nav-link reports" data-bs-toggle="collapse" href="#reportsMenu" role="button" aria-expanded="false">
                 <i class="bi bi-bar-chart-fill"></i> Reports
             </a>
             <div class="collapse" id="reportsMenu">
                 <span class="nav-link"><i class="bi bi-clock-history me-2"></i> Coming Soon</span>
             </div>
         </div>
-       
+
     </div>
 
     <!-- ==================== CONTENT ==================== -->
@@ -204,5 +193,16 @@
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // ================= BRAND CLICK COLLAPSE ALL MENUS =================
+        document.getElementById('brandClick').addEventListener('click', function() {
+            ['dashboardMenu','masterMenu','transactionMenu','reportsMenu'].forEach(function(id){
+                var el = document.getElementById(id);
+                var instance = bootstrap.Collapse.getOrCreateInstance(el);
+                instance.hide(); // collapse each menu
+            });
+        });
+    </script>
 </body>
 </html>
