@@ -96,10 +96,17 @@
                         <input type="date" id="PurchaseDate" class="form-control">
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-4">
                     <label class="form-label bi bi-person-fill">Supplier</label>
                     <div class="input-group">
                         <select id="SupplierId" class="form-select"><option value="">-- Select Supplier --</option></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Barcode</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-danger text-white"><i class="bi bi-upc-scan"></i></span>
+                        <input type="text" id="Barcode" class="form-control">
                     </div>
                 </div>
             </div>
@@ -110,47 +117,9 @@
     <div class="card mt-4">
         <div class="card-header"><h5 class="mb-0"><i class="bi bi-bag-check-fill me-2"></i>Purchase Details</h5></div>
         <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label bi bi-box-seam-fill">Product</label>
-                    <div class="input-group">
-                        <select id="ProductId" class="form-select"><option value="">-- Select Product --</option></select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Qty</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-warning text-dark"><i class="bi bi-123"></i></span>
-                        <input type="text" id="Qty" class="form-control">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Cost Price</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-secondary text-white"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="text" id="CostPrice" class="form-control">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Amount</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-dark text-white"><i class="bi bi-calculator-fill"></i></span>
-                        <input type="text" id="Amount" class="form-control" readonly>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Barcode</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-danger text-white"><i class="bi bi-upc-scan"></i></span>
-                        <input type="text" id="Barcode" class="form-control">
-                    </div>
-                </div>
-            </div>
+            
 
-            <div class="mb-3">
-                <button type="button" id="btnAddToList" class="btn btn-primary me-2"><i class="bi bi-cart-plus-fill me-1"></i>Add To List</button>
-                <button type="button" id="btnClearProduct" class="btn btn-secondary"><i class="bi bi-x-lg me-1"></i>Clear</button>
-            </div>
+             
 
             <table class="table table-bordered mt-3" id="tblProductList">
                 <thead>
@@ -177,7 +146,7 @@
                 <button class="btn btn-info text-white btn-lg" onclick="openReportPage()"><i class="bi bi-file-earmark-text-fill me-2"></i>Report</button>
             </div>
 
-            <table id="tblPurchases" class="table table-bordered table-striped mt-4">
+            <table id="tblPurchases" class="table table-bordered table-striped w-100">
                 <thead>
                     <tr>
                         <th>Purchase ID</th>
@@ -216,7 +185,7 @@
             });
         }
 
-        // Load products
+               // Load products initially
         function LoadProducts(){
             $.get("/Purchase/GetProducts", function(res){
                 $("#ProductId").html('<option></option>');
@@ -228,42 +197,141 @@
             });
         }
 
-        // Add to product list
-        $("#btnAddToList").click(function(){
-            let productId = $("#ProductId").val();
-            let productName = $("#ProductId option:selected").text();
-            let qty = parseFloat($("#Qty").val()) || 0;
-            let cost = parseFloat($("#CostPrice").val()) || 0;
-            let amount = qty * cost;
-            if(!productId || qty<=0 || cost<=0){ Swal.fire("Warning","Select product & valid Qty/Cost","warning"); return; }
-            productList.push({ productId, productName, qty, costPrice:cost, amount, barcode: $("#Barcode").val() });
-            renderProductList();
-            clearProductFields();
-        });
+        
+
+       
 
         $("#btnClearProduct").click(clearProductFields);
         function clearProductFields(){ $("#ProductId,#Qty,#CostPrice,#Amount,#Barcode").val("").trigger('change'); }
 
-        // Render product list table
-        function renderProductList(){
-            let tbody = $("#tblProductList tbody"); tbody.empty();
-            let total = 0;
-            productList.forEach((p,i)=>{
-                total += p.amount;
-                tbody.append(`<tr>
-                    <td>${p.productName}</td>
-                    <td>${p.qty}</td>
-                    <td>${p.costPrice}</td>
-                    <td>${p.amount.toFixed(2)}</td>
-                    <td><button class="btn btn-sm btn-danger removeItem" data-index="${i}"><i class="bi bi-trash-fill"></i></button></td>
-                </tr>`);
+
+
+                // Barcode enter hone par product load
+          $("#Barcode").on("change", function () {
+
+            let barcode = $(this).val();
+
+            if (barcode == "") return;
+
+            // ✅ Check if barcode already exists
+            let exists = productList.some(p => p.barcode === barcode);
+
+            if (exists) {
+                Swal.fire("Warning", "This product already added in list", "warning");
+                $("#Barcode").val("").focus();
+                return;
+            }
+
+            $.get("/Purchase/GetProductByBarcode", { barcode: barcode }, function (res) {
+
+                if (!res) {
+                    Swal.fire("Error", "Product not found", "error");
+                    return;
+                }
+
+                let qty = 1;
+                let cost = res.costPrice || 0;
+                let amount = qty * cost;
+
+                productList.push({
+                    ProductId: res.ProductId,
+                    ProductName: res.ProductName,
+                    qty: qty,
+                    costPrice: cost,
+                    amount: amount,
+                    barcode: barcode
+                });
+
+                renderProductList();
+
+                $("#Barcode").val("").focus();
+
             });
+
+        });
+               
+        //render product
+                function renderProductList(){
+            let tbody = $("#tblProductList tbody");
+            tbody.empty();
+
+            let total = 0;
+
+            productList.forEach((p,i)=>{
+
+                total += p.amount;
+
+                tbody.append(`
+                <tr>
+                    <td>${p.ProductName}</td>
+
+                    <td>
+                        <input type="number" class="form-control qtyEdit"
+                        data-index="${i}" value="${p.qty}">
+                    </td>
+
+                    <td>
+                        <input type="number" class="form-control costEdit"
+                        data-index="${i}" value="${p.costPrice}">
+                    </td>
+
+                    <td class="amountCell">${p.amount.toFixed(2)}</td>
+
+                    <td>
+                        <button class="btn btn-sm btn-danger removeItem"
+                        data-index="${i}">
+                        <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                `);
+            });
+
             $("#totalAmount").text(total.toFixed(2));
+
+            // remove item
             $(".removeItem").click(function(){
                 productList.splice($(this).data("index"),1);
                 renderProductList();
             });
+
+            // qty change
+            $(".qtyEdit").on("keyup change", function(){
+
+                let i = $(this).data("index");
+                let qty = parseFloat($(this).val()) || 0;
+
+                productList[i].qty = qty;
+                productList[i].amount = qty * productList[i].costPrice;
+
+                renderProductList();
+            });
+
+            // cost change
+            $(".costEdit").on("keyup change", function(){
+
+                let i = $(this).data("index");
+                let cost = parseFloat($(this).val()) || 0;
+
+                productList[i].costPrice = cost;
+                productList[i].amount = cost * productList[i].qty;
+
+                renderProductList();
+            });
+
+            // ⭐ NEW FIX (Cursor Qty per focus karega)
+            setTimeout(function () {
+                let lastQty = $("#tblProductList tbody tr:last .qtyEdit");
+                if (lastQty.length) {
+                    lastQty.focus();
+                    lastQty.select();
+                }
+            }, 50);
         }
+
+
+
+
 
         // Add purchase
                function AddPurchase() {

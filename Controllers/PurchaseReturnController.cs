@@ -76,24 +76,30 @@ namespace YourNamespace.Controllers
             using SqlConnection con = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
 
             string query = @"
-            SELECT 
-                PD.DetailId,
-                PD.PurchaseId,
-                PD.ProductId,
-                P.ProductName,
-                PD.Qty,
-                PD.CostPrice,
-                PD.Amount,
-                PD.Barcode
-            FROM PurchaseDetail PD
-            INNER JOIN Products P ON PD.ProductId = P.ProductId
-            WHERE PD.PurchaseId = @PurchaseId
-            ORDER BY PD.DetailId";
+                        SELECT 
+                            SL.LedgerId AS DetailId,
+                            SL.PurchaseId,
+                            SL.ProductId,
+                            P.ProductName,
+                            SL.QtyIn AS purchasedQty,
+                            SL.BalanceQty AS balanceQty,
+                            PD.CostPrice,
+                            PD.Barcode,
+                            SL.CmpyId,
+                            SL.BranchId
+                        FROM StockLedger SL
+                        INNER JOIN Products P ON SL.ProductId = P.ProductId
+                        LEFT JOIN PurchaseDetail PD 
+                            ON SL.ProductId = PD.ProductId 
+                            AND SL.PurchaseId = PD.PurchaseId
+                        WHERE SL.PurchaseId = @PurchaseId
+                        ORDER BY SL.LedgerId";
 
             using SqlCommand cmd = new SqlCommand(query, con);
             cmd.Parameters.AddWithValue("@PurchaseId", purchaseId);
 
             con.Open();
+
             using SqlDataReader dr = cmd.ExecuteReader();
 
             while (dr.Read())
@@ -104,10 +110,10 @@ namespace YourNamespace.Controllers
                     purchaseId = dr["PurchaseId"].ToString(),
                     productId = dr["ProductId"].ToString(),
                     productName = dr["ProductName"].ToString(),
-                    qty = Convert.ToDecimal(dr["Qty"]),
-                    costPrice = Convert.ToDecimal(dr["CostPrice"]),
-                    amount = Convert.ToDecimal(dr["Amount"]),
-                    barcode = dr["Barcode"].ToString()
+                    purchasedQty = Convert.ToDecimal(dr["purchasedQty"]),
+                    balanceQty = Convert.ToDecimal(dr["balanceQty"]),
+                    costPrice = dr["CostPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dr["CostPrice"]),
+                    barcode = dr["Barcode"] == DBNull.Value ? "" : dr["Barcode"].ToString()
                 });
             }
 
@@ -120,41 +126,43 @@ namespace YourNamespace.Controllers
         // ADD PURCHASE RETURN
         // =========================
         [HttpPost]
-        public IActionResult AddBulkPurchaseReturn([FromBody] List<ReturnItemVM> items)
+        public IActionResult AddBulkPurchaseReturn([FromBody] List<PurchaseReturnModel> model)
         {
-            if (items == null || items.Count == 0)
-                return BadRequest("No items to return.");
-
-            string cmpyId = "CMP001";
-            string branchId = "BR001";
-            string createdBy = User.Identity?.Name ?? "system";
-
-            using (var conn = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            if (model == null || model.Count == 0)
             {
-                conn.Open();
+                return Json(new { success = false, message = "No data found" });
+            }
 
-                foreach (var item in items)
+            using (var db = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                db.Open();
+
+                string returnId = "RET-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                foreach (var item in model)
                 {
-                    var parameters = new DynamicParameters();
+                    var param = new DynamicParameters();
 
-                    parameters.Add("@PurchaseId", item.purchaseId);
-                    parameters.Add("@ProductId", item.productId);
-                    parameters.Add("@ReturnQty", item.returnQty);
-                    parameters.Add("@Reason", item.reason);
-                    parameters.Add("@CmpyId", cmpyId);
-                    parameters.Add("@BranchId", branchId);
-                    parameters.Add("@CreatedBy", createdBy);
+                    param.Add("@ReturnId", returnId);
+                    param.Add("@PurchaseId", item.PurchaseId);
+                    param.Add("@ProductId", item.ProductId);
+                    param.Add("@Qty", item.ReturnQty);
+                    param.Add("@CostPrice", item.CostPrice);
+                    param.Add("@Barcode", item.Barcode);
+                    param.Add("@SupplierId", item.SupplierId);
 
-                    conn.Execute(
-                        "sp_AddPurchaseReturn_StockLedger",
-                        parameters,
-                        commandType: CommandType.StoredProcedure
-                    );
+                    param.Add("@CmpyId", "1");
+                    param.Add("@BranchId", "1");
+                    param.Add("@CreatedBy", "Admin");
+
+                    db.Execute("AddBulkPurchaseReturn", param, commandType: CommandType.StoredProcedure);
                 }
             }
 
-            return Ok(new { message = "Items returned successfully!" });
+            return Json(new { success = true, message = "Purchase Return Saved Successfully" });
         }
+
+
 
         // PAGE LOAD
         public IActionResult GetStockLedgerData()
@@ -167,7 +175,6 @@ namespace YourNamespace.Controllers
                         ProductId,
                         QtyIn,
                         QtyOut,
-                        
                         CmpyId,
                         BranchId,
                         CreatedOn,
@@ -176,9 +183,10 @@ namespace YourNamespace.Controllers
 
                 var data = db.Query(query).ToList();
 
-                return Json(new { data });
+                return Json(new { data = data });
             }
         }
+
         public class StockLedger
         {
             public int LedgerId { get; set; }
@@ -194,12 +202,20 @@ namespace YourNamespace.Controllers
         }
 
         // ================= VIEW MODEL =================
-        public class ReturnItemVM
+
+        public class PurchaseReturnModel
         {
-            public string purchaseId { get; set; }
-            public string productId { get; set; }
-            public decimal returnQty { get; set; }
-            public string reason { get; set; }
+            public string PurchaseId { get; set; }
+
+            public string ProductId { get; set; }
+
+            public decimal ReturnQty { get; set; }
+
+            public decimal CostPrice { get; set; }
+
+            public string Barcode { get; set; }
+
+            public string SupplierId { get; set; }
         }
     }
 }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MasterClean")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+333d8616217c8d2949efb2381c90e7d833302cd5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2576bc61a5c94dd79b6260424358c463819666c4")]
 [assembly: System.Reflection.AssemblyProductAttribute("MasterClean")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MasterClean")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

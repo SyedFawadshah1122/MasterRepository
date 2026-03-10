@@ -212,12 +212,14 @@
 
                 <!-- DataTable -->
                 <table id="tblReturnItems" class="table table-bordered table-striped w-100">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
                             <th>DetailId</th>
                             <th>Product</th>
-                            <th>Qty Purchased</th>
-                            <th>Barcode</th>
+                            <th>Purchased Qty</th>
+                            <th>Stock Qty</th>
+                            <th>Cost Price</th>
+                            
                             <th>Return Qty</th>
                             <th>Reason</th>
                         </tr>
@@ -319,40 +321,55 @@
             });
 
             // PurchaseHeader change → Load DataTable
-            $("#ReturnPurchaseHeaderId").change(function () {
-                let purchaseId = $(this).val();
-                if (!purchaseId) return;
+          $("#ReturnPurchaseHeaderId").change(function () {
+            let purchaseId = $(this).val();
+            if (!purchaseId) return;
 
-                $("#tblReturnItems").DataTable({
-                    destroy: true,
-                    processing: true,
-                    ajax: {
-                        url: "/PurchaseReturn/GetPurchaseItemsByHeaderId",
-                        type: "GET",
-                        data: { purchaseId: purchaseId },
-                        dataSrc: "data"
-                    },
-                    columns: [
-                        { data: "detailId" },
-                        { data: "productName" },
-                        { data: "qty" },
-                        { data: "barcode" },
-                        {
-                            data: null,
-                            render: function (data) {
-                                return `<input type="number" class="form-control returnQty" min="0" max="${data.qty}">`;
-                            }
-                        },
-                        {
-                            data: null,
-                            render: function () {
-                                return `<input type="text" class="form-control reasonInput" placeholder="Enter reason">`;
-                            }
-                        }
-                    ]
-                });
-            });
+                   $("#tblReturnItems").DataTable({
+            destroy: true,
+            processing: true,
+            ajax: {
+                url: "/PurchaseReturn/GetPurchaseItemsByHeaderId",
+                type: "GET",
+                data: { purchaseId: purchaseId },
+                dataSrc: "data"
+            },
+            columns: [
 
+                { data: "detailId" },
+
+                { data: "productName" },
+
+                { data: "purchasedQty" },
+
+                { data: "balanceQty" },
+
+                { data: "costPrice" },
+
+              
+
+                {
+                    data: null,
+                    render: function (data) {
+                        return `<input type="number"
+                                class="form-control returnQty"
+                                min="0"
+                                max="${data.balanceQty}">`;
+                    }
+                },
+
+                {
+                    data: null,
+                    render: function () {
+                        return `<input type="text"
+                                class="form-control reasonInput"
+                                placeholder="Enter reason">`;
+                    }
+                }
+
+            ]
+        });
+        });
             // Qty validation
             $(document).on("keyup change", ".returnQty", function () {
                 let maxQty = parseFloat($(this).attr("max"));
@@ -361,36 +378,74 @@
             });
 
             // Submit Return
-            $("#btnSubmitBulkReturn").click(function () {
-                let table = $("#tblReturnItems").DataTable();
-                let rows = table.rows().data();
-                let returnData = [];
-                let valid = true;
+                 $("#btnSubmitBulkReturn").click(function () {
 
-                rows.each(function (row, i) {
-                    let rQty = parseFloat($(".returnQty").eq(i).val()) || 0;
-                    let reason = $(".reasonInput").eq(i).val();
-                    if (rQty > parseFloat(row.qty)) valid = false;
-                    if (rQty > 0) returnData.push({ purchaseId: row.purchaseId, productId: row.productId, returnQty: rQty, reason: reason });
-                });
+            let table = $("#tblReturnItems").DataTable();
+            let rows = table.rows().data();
 
-                if (!valid) { Swal.fire("Error", "Return qty cannot exceed purchased qty", "error"); return; }
-                if (returnData.length === 0) { Swal.fire("Warning", "Enter return qty to proceed", "warning"); return; }
+            let returnData = [];
+            let valid = true;
 
-                $.ajax({
-                    url: "/PurchaseReturn/AddBulkPurchaseReturn",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(returnData),
-                    success: function (res) {
-                        Swal.fire("Success", res.message, "success");
-                        $("#ReturnSupplierId").val("").trigger('change');
-                        $("#ReturnPurchaseHeaderId").val("").trigger('change');
-                        $("#tblReturnItems").DataTable().clear().draw();
-                    },
-                    error: function () { Swal.fire("Error", "Something went wrong!", "error"); }
-                });
+            rows.each(function (row, i) {
+
+                let rQty = parseFloat($(".returnQty").eq(i).val()) || 0;
+                let reason = $(".reasonInput").eq(i).val();
+
+                if (rQty > parseFloat(row.balanceQty)) {
+                    valid = false;
+                }
+
+                if (rQty > 0) {
+
+                    returnData.push({
+                        purchaseId: row.purchaseId,
+                        productId: row.productId,
+                        returnQty: rQty,
+                        costPrice: row.costPrice,
+                        barcode: row.barcode,
+                        supplierId: $("#ReturnSupplierId").val()
+                    });
+
+                }
+
             });
+
+            if (!valid) {
+                Swal.fire("Error", "Return qty cannot exceed stock qty", "error");
+                return;
+            }
+
+            if (returnData.length === 0) {
+                Swal.fire("Warning", "Enter return qty to proceed", "warning");
+                return;
+            }
+
+            $.ajax({
+                url: "/PurchaseReturn/AddBulkPurchaseReturn",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(returnData),
+
+                success: function (res) {
+
+                    Swal.fire("Success", res.message, "success");
+
+                    $("#ReturnSupplierId").val("").trigger('change');
+                    $("#ReturnPurchaseHeaderId").val("").trigger('change');
+
+                    $("#tblReturnItems").DataTable().clear().draw();
+
+                    $("#tblReturnItems1").DataTable().ajax.reload();
+
+                },
+
+                error: function () {
+                    Swal.fire("Error", "Something went wrong!", "error");
+                }
+
+            });
+
+        });
 
         
         // Example usage: when user selects PurchaseHeader from second dropdown

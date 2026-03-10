@@ -190,18 +190,10 @@ namespace CrudMaster.Classes
         public void SaveProducts(ProductsVm model)
         {
             string sql = @"
-                INSERT INTO Products
-                (
-                    ProductId, ProductName, CategoryId, SubCategoryId,
-                    CostPrice, SellingPrice, StockQty, IsActive,
-                    CmpyId, BranchId, CreatedOn, CreatedBy, ModifiedOn, ModifiedBy
-                )
-                VALUES
-                (
-                    @ProductId, @ProductName, @CategoryId, @SubCategoryId,
-                    @CostPrice, @SellingPrice, @StockQty, @IsActive,
-                    @CmpyId, @BranchId, @CreatedOn, @CreatedBy, @ModifiedOn, @ModifiedBy
-                )";
+               INSERT INTO Products
+                        (ProductId,ProductName,CategoryId,SubCategoryId,CostPrice,SellingPrice,StockQty,Barcode,IsActive,CmpyId,BranchId,CreatedOn,CreatedBy)
+                        VALUES
+                        (@ProductId,@ProductName,@CategoryId,@SubCategoryId,@CostPrice,@SellingPrice,@StockQty,@Barcode,@IsActive,@CmpyId,@BranchId,@CreatedOn,@CreatedBy)";
 
             using var conn = GetConnection();
             conn.Execute(sql, model);
@@ -212,7 +204,7 @@ namespace CrudMaster.Classes
         {
             string sql = @"
                 SELECT ProductId, ProductName, CategoryId, SubCategoryId,
-                       CostPrice, SellingPrice, StockQty, IsActive
+                       CostPrice, SellingPrice, StockQty, Barcode, IsActive
                 FROM Products";
 
             using var conn = GetConnection();
@@ -237,6 +229,7 @@ namespace CrudMaster.Classes
             CostPrice = @CostPrice,
             SellingPrice = @SellingPrice,
             StockQty = @StockQty,
+            Barcode = @Barcode,
             IsActive = @IsActive,
             ModifiedOn = @ModifiedOn,
             ModifiedBy = @ModifiedBy

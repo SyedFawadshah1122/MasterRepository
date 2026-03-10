@@ -93,6 +93,10 @@
                     <label><i class="bi bi-boxes me-1"></i>Stock Qty</label>
                     <input type="number" id="StockQty" class="form-control" />
                 </div>
+                <div class="col-md-4">
+                    <label><i class="bi bi-upc-scan me-1"></i>Barcode</label>
+                    <input type="text" id="Barcode" class="form-control" />
+                </div>
                 <div class="col-md-4 mt-4">
                     <input type="checkbox" id="IsActive" /> <i class="bi bi-check2-circle text-success me-1"></i> Is Active
                 </div>
@@ -123,6 +127,7 @@
                         <th><i class="bi bi-cash-stack me-1"></i>Cost</th>
                         <th><i class="bi bi-currency-dollar me-1"></i>Price</th>
                         <th><i class="bi bi-boxes me-1"></i>Stock</th>
+                        <th><i class="bi bi-upc-scan me-1"></i>Barcode</th>
                         <th class="text-center"><i class="bi bi-check2-circle me-1"></i>Active</th>
                         <th class="text-center"><i class="bi bi-gear-fill me-1"></i>Action</th>
                     </tr>
@@ -149,28 +154,26 @@
                     type:'GET',
                     dataSrc:''
                 },
-                columns:[
-                    {data:'productId'},
-                    {data:'productName'},
-                    {data:'categoryId'},
-                    {data:'subCategoryId'},
-                    {data:'costPrice'},
-                    {data:'sellingPrice'},
-                    {data:'stockQty'},
-                    {data:'isActive', className:'text-center', render:x=> x ? '<i class="bi bi-check-circle-fill text-success fs-5"></i>' : '<i class="bi bi-x-circle-fill text-danger fs-5"></i>'},
-                    {
-                        data:'productId', className:'text-center',
-                        render: function(id){
-                            return `
-                                <button class="btn btn-sm btn-warning me-1" onclick="editProduct('${id}')">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${id}')">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>`;
-                        }
-                    }
-                ]
+                       columns:[
+                                {data:'productId'},
+                                {data:'productName'},
+                                {data:'categoryId'},
+                                {data:'subCategoryId'},
+                                {data:'costPrice'},
+                                {data:'sellingPrice'},
+                                {data:'stockQty'},
+                                {data:'barcode'},      // ✅ add barcode column
+                                {data:'isActive', className:'text-center', render:x=> x ? '<i class="bi bi-check-circle-fill text-success fs-5"></i>' : '<i class="bi bi-x-circle-fill text-danger fs-5"></i>'},
+                                {data:'productId', className:'text-center', render:function(id){
+                                    return `
+                                        <button class="btn btn-sm btn-warning me-1" onclick="editProduct('${id}')">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${id}')">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>`;
+                                }}
+                            ]
             });
 
             // Load Categories
@@ -191,24 +194,24 @@
             });
 
             // SAVE / UPDATE
-            $('#btnSaveProduct').click(function(){
-                let obj={
-                    ProductId: $('#ProductId').val(),
-                    ProductName: $('#ProductName').val(),
-                    CategoryId: $('#CategoryId').val(),
-                    SubCategoryId: $('#SubCategoryId').val(),
-                    CostPrice: $('#CostPrice').val(),
-                    SellingPrice: $('#SellingPrice').val(),
-                    StockQty: $('#StockQty').val(),
-                    IsActive: $('#IsActive').is(':checked'),
-                    CmpyId:'CMP-01',
-                    BranchId:'BR-05',
-                    CreatedBy:'admin',
-                    CreatedOn: new Date(),
-                    ModifiedOn: new Date(),
-                    ModifiedBy:'admin'
-                };
-
+                    $('#btnSaveProduct').click(function(){
+                                       let obj={
+                                        ProductId: $('#ProductId').val(),
+                                        ProductName: $('#ProductName').val(),
+                                        CategoryId: $('#CategoryId').val(),
+                                        SubCategoryId: $('#SubCategoryId').val(),
+                                        CostPrice: $('#CostPrice').val(),
+                                        SellingPrice: $('#SellingPrice').val(),
+                                        StockQty: $('#StockQty').val(),
+                                        Barcode: $('#Barcode').val(),  // ✅ IMPORTANT
+                                        IsActive: $('#IsActive').is(':checked'),
+                                        CmpyId:'CMP-01',
+                                        BranchId:'BR-05',
+                                        CreatedBy:'admin',
+                                        CreatedOn: new Date(),
+                                        ModifiedOn: new Date(),
+                                        ModifiedBy:'admin'
+                                    };
                 $.ajax({
                     url:'/Product/SaveProducts',
                     type:'POST',
@@ -234,6 +237,8 @@
                 $('#CostPrice').val('');
                 $('#SellingPrice').val('');
                 $('#StockQty').val('');
+                $('#Barcode').val('');
+
                 $('#IsActive').prop('checked', false);
                 $('#btnSaveProduct').text('Save');
                 $('#IsEdit').val('0');
@@ -252,6 +257,7 @@
                     $('#CostPrice').val(res.costPrice);
                     $('#SellingPrice').val(res.sellingPrice);
                     $('#StockQty').val(res.stockQty);
+                    $('#Barcode').val(res.barcode);
                     $('#IsActive').prop('checked', res.isActive);
 
                     $('#btnSaveProduct').text('Update');

@@ -1,4 +1,5 @@
 ﻿using CrudMaster.Models;
+using Dapper;
 using Master.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -84,6 +85,25 @@ namespace Master.Controllers
 
             return Ok(list);
         }
+
+
+
+
+        [HttpGet]
+        public IActionResult GetProductByBarcode(string barcode)
+        {
+            using (var con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                var sql = "SELECT ProductId, ProductName, CostPrice FROM Products WHERE Barcode=@barcode";
+
+                var product = con.QueryFirstOrDefault(sql, new { barcode });
+
+                return Json(product);
+            }
+        }
+
+
+
 
         // =========================
         // ADD PURCHASE
